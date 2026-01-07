@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\Lib">
+      <UniqueIdentifier>{fa74bd15-1b03-4efe-87ef-f33a270c1c7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Control">
+      <UniqueIdentifier>{5b3b9ff1-f5d1-47f8-813d-34d45bb3678f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Control\Src">
+      <UniqueIdentifier>{c19c4d5f-3914-47e5-83b3-b819b494802b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Control\Include">
+      <UniqueIdentifier>{983384ad-f876-4854-944d-04db353e02f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Lib\Src">
+      <UniqueIdentifier>{cfe9eb59-e13b-43d7-bfb8-c23f992c748f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Lib\Include">
+      <UniqueIdentifier>{bb6fb318-5a12-4400-bdbc-2d553be115b2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Lib\Include\Json.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\Str.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\Ini.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\File.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\Timer.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Control\Include\Lib.h">
+      <Filter>소스 파일\Control\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Control\Include\Test.h">
+      <Filter>소스 파일\Control\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\Shm.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\MemPool.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\Include\Xml.h">
+      <Filter>소스 파일\Lib\Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Lib\Src\Json.cpp">
+      <Filter>소스 파일\Lib\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib\Src\Ini.cpp">
+      <Filter>소스 파일\Lib\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Control\Src\main.cpp">
+      <Filter>소스 파일\Control\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib\Src\Shm.cpp">
+      <Filter>소스 파일\Lib\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib\Src\Xml.cpp">
+      <Filter>소스 파일\Lib\Src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
