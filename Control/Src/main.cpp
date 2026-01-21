@@ -2,8 +2,8 @@
 
 void main(){
 
-	Test::TestMain t;
-	t.TestFuncMain();
+	//Test::TestMain t;
+	//t.TestFuncMain();
 
 	while (1){
 		fflush(stdin);
