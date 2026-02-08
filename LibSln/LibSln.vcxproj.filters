@@ -63,6 +63,9 @@
     <ClInclude Include="..\Lib\Include\Xml.h">
       <Filter>소스 파일\Lib\Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\Control\Include\GUI.h">
+      <Filter>소스 파일\Control\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\Src\Json.cpp">
@@ -79,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="..\Lib\Src\Xml.cpp">
       <Filter>소스 파일\Lib\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Control\Src\GUI.cpp">
+      <Filter>소스 파일\Control\Src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

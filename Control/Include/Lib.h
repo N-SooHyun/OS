@@ -14,5 +14,6 @@ using namespace Dynamic;
 #include "../../Lib/Include/Json.h"
 #include "../../Lib/Include/Ini.h"
 #include "../../Lib/Include/Xml.h"
+#include "../../Control/Include/GUI.h"
 
 #include "Test.h"

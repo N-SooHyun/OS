@@ -2,6 +2,9 @@
 
 void main(){
 
+	/* ================================================
+	* Xml Test용
+	==================================================*/
 	//Test::TestMain t;
 	//t.TestFuncMain();
 	XmlObj Root;
@@ -24,7 +27,13 @@ void main(){
 	XmlObj* pObj;
 	//pObj = Root;				//객체를 반환?
 	pObj = (XmlObj*)Root();
-	pObj = (XmlObj*)Root(2);				
+	pObj = (XmlObj*)Root(2);
+
+
+	/* ================================================
+	* Gui Test 용
+	==================================================*/
+	Gui_Main();
 
 	while (1){
 		fflush(stdin);

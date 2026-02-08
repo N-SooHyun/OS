@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Control\Include\GUI.h" />
     <ClInclude Include="..\Control\Include\Lib.h" />
     <ClInclude Include="..\Control\Include\Test.h" />
     <ClInclude Include="..\Lib\Include\File.h" />
@@ -23,6 +24,7 @@
     <ClInclude Include="..\Lib\Include\Xml.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Control\Src\GUI.cpp" />
     <ClCompile Include="..\Control\Src\main.cpp" />
     <ClCompile Include="..\Lib\Src\Ini.cpp" />
     <ClCompile Include="..\Lib\Src\Json.cpp" />

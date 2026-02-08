@@ -4,10 +4,10 @@
 
 namespace TimerFunc{
 	class Timer{
-		__int32 ElapsedTime;		//msec
-		bool isTimeStp = true;		//정지유무
-		HANDLE hTimer = NULL;		//신호용 핸들러
-		HANDLE hThread = NULL;		//스레드용 핸들러
+		__int32 ElapsedTime;			//msec
+		bool isTimeStp = true;			//정지유무
+		HANDLE hTimer = NULL;			//신호용 핸들러
+		HANDLE hThread = NULL;			//스레드용 핸들러
 
 		//스레드가 사용하는 함수 프로세스
 		static DWORD WINAPI ThreadProc(LPVOID pArg){
@@ -15,7 +15,7 @@ namespace TimerFunc{
 			while (1){
 				if (pThis->isTimeStp)
 					break;
-
+				
 				DWORD dw = WaitForSingleObject(pThis->hTimer, INFINITE);
 				if (dw == WAIT_OBJECT_0){
 					if (!pThis->isTimeStp){
@@ -56,6 +56,15 @@ namespace TimerFunc{
 			isTimeStp = false;
 			return true;
 		}
+
+		bool reStart(){
+			if (isTimeStp){
+				isTimeStp = false;
+				return true;
+			}
+			return false;
+		}
+
 		bool Stop(){
 			CancelWaitableTimer(hTimer);
 			isTimeStp = true;
@@ -77,4 +86,10 @@ namespace TimerFunc{
 	};
 
 
+	class Timer_Gui{
+
+	public:
+		Timer_Gui(){}
+		~Timer_Gui(){}
+	};
 }
