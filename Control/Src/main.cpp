@@ -35,6 +35,8 @@ void main(){
 	==================================================*/
 	Gui_Main();
 
+	//TestMemSec::TestMemSecurity MemSec;
+
 	while (1){
 		fflush(stdin);
 		printf("아무키나 누르면 종료 : ");

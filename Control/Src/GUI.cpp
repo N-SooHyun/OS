@@ -5,14 +5,14 @@
 int Gui_Main(){
 	//실제로 계속 동작을 하는지를 확인하는 부분
 	Gui_Root gui;
-
+	gui.Loading_Graph_Sleep_Blocked();
 	while (1){
 		//gui.Test();
 		//gui.Loading_Graph();
-		gui.Loading_Graph_Sleep_Blocked();
+		
 		fflush(stdin);
-		//getchar();
-		//break;
+		getchar();
+		break;
 		fflush(stdin);
 	}
 

@@ -65,20 +65,22 @@ public:
 	//이벤트기반도 있는데 이건 조건기반으로 대기 -> 준비로 변환하기 떄문에 좀더 유리하나
 	//현재 구조인 시간조건으로 ReDraw를 하는 구조라면 Sleep이나 이벤트나 똑같은 시간조건이라 의미없음
 	void Loading_Graph_Sleep_Blocked(){
-		system("cls");
+		while (1){
+			system("cls");
 
-		if (StartFocus >= 20)
-			StartFocus = 0;
+			if (StartFocus >= 20)
+				StartFocus = 0;
 
-		for (int i = 0; i < 20; i++) {
-			if (i == StartFocus)
-				printf("*");
-			else
-				printf("-");
+			for (int i = 0; i < 20; i++) {
+				if (i == StartFocus)
+					printf("*");
+				else
+					printf("-");
+			}
+
+			StartFocus++;
+
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
-
-		StartFocus++;
-
-		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 };

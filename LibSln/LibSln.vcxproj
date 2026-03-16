@@ -26,6 +26,7 @@
   <ItemGroup>
     <ClCompile Include="..\Control\Src\GUI.cpp" />
     <ClCompile Include="..\Control\Src\main.cpp" />
+    <ClCompile Include="..\Control\Src\Test.cpp" />
     <ClCompile Include="..\Lib\Src\Ini.cpp" />
     <ClCompile Include="..\Lib\Src\Json.cpp" />
     <ClCompile Include="..\Lib\Src\Shm.cpp" />

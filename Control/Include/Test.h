@@ -135,3 +135,32 @@ namespace Test{
 		}
 	};
 }
+
+
+
+//메모리 보호에 대한 고찰
+namespace TestMemSec{
+	//전역변수(Data영역)
+	int Global_Var;
+
+	void StackFunc(){
+		//지역변수(Stack영역)
+		int Local_Var = 0;
+
+		int* Dynamic_Var = new int;
+		int* Dynamic_Var_C = (int*)malloc(sizeof(int));
+	}
+
+
+	class TestMemSecurity{
+	public:
+		//전역변수
+
+		TestMemSecurity(){}
+		~TestMemSecurity(){}
+
+		void TestMain(){
+
+		}
+	};
+}
