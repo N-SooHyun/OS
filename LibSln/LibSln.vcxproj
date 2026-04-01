@@ -14,6 +14,7 @@
     <ClInclude Include="..\Control\Include\GUI.h" />
     <ClInclude Include="..\Control\Include\Lib.h" />
     <ClInclude Include="..\Control\Include\Test.h" />
+    <ClInclude Include="..\Control\Include\Thread.h" />
     <ClInclude Include="..\Lib\Include\File.h" />
     <ClInclude Include="..\Lib\Include\Ini.h" />
     <ClInclude Include="..\Lib\Include\Json.h" />
@@ -27,6 +28,7 @@
     <ClCompile Include="..\Control\Src\GUI.cpp" />
     <ClCompile Include="..\Control\Src\main.cpp" />
     <ClCompile Include="..\Control\Src\Test.cpp" />
+    <ClCompile Include="..\Control\Src\Thread.cpp" />
     <ClCompile Include="..\Lib\Src\Ini.cpp" />
     <ClCompile Include="..\Lib\Src\Json.cpp" />
     <ClCompile Include="..\Lib\Src\Shm.cpp" />

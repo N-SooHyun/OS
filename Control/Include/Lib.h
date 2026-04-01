@@ -15,5 +15,6 @@ using namespace Dynamic;
 #include "../../Lib/Include/Ini.h"
 #include "../../Lib/Include/Xml.h"
 #include "../../Control/Include/GUI.h"
+#include "../../Control/Include/Thread.h"
 
 #include "Test.h"
