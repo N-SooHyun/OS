@@ -5,6 +5,7 @@ void main(){
 	/* ================================================
 	* Xml Test¿ë
 	==================================================*/
+	XmlTestFunc();
 	//Test::TestMain t;
 	//t.TestFuncMain();
 	XmlObj Root;
@@ -33,7 +34,7 @@ void main(){
 	/* ================================================
 	* Gui Test ¿ë
 	==================================================*/
-	Gui_Main();
+	//Gui_Main();
 
 	//TestMemSec::TestMemSecurity MemSec;
 
