@@ -184,7 +184,7 @@ void XmlTestFunc(){
 * Xml Value(XmlObj or Value)
 ==================================================*/
 XmlVal::XmlVal(){}
-XmlVal::~XmlVal(){}
+//XmlVal::~XmlVal(){}
 void XmlVal::SetName(DynamicStr* lStr, DynamicStr* rStr){
 	lStr->Set_Str(rStr->Get_Str());
 }
@@ -206,6 +206,9 @@ void XmlText::UpdateValue(char* UpdateVal){
 void XmlText::UpdateValue(DynamicStr* UpdateVal){
 	SetName(&Data, UpdateVal);
 }
+char* XmlText::getName(){
+	return Data.Get_Str();
+}
 
 // XmlElements
 XmlElementRef::XmlElementRef(char* ObjName){
@@ -222,6 +225,9 @@ void XmlElementRef::UpdateObjName(char* newObjName){
 void XmlElementRef::UpdateObjName(DynamicStr* newObjName){
 	if (Obj == nullptr) return;
 	SetName(&Obj->Name, newObjName);
+}
+char* XmlElementRef::getName(){
+	return Obj->Name.Get_Str();
 }
 
 

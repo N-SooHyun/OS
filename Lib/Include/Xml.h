@@ -60,8 +60,7 @@ class XmlVal{
 	//Dev Code
 public:		
 	XmlVal();
-	XmlVal();
-	virtual ~XmlVal();
+	virtual ~XmlVal() = default;
 
 	//user Code
 	virtual char* getName() = 0;	//이름 반환할것(Value면 그냥 값, Obj면 Obj이름)
@@ -74,6 +73,7 @@ class XmlText : public XmlVal{
 public:
 	XmlText(char* );
 	XmlText(DynamicStr* );
+	~XmlText() = default;
 
 	void UpdateValue(char* );
 	void UpdateValue(DynamicStr* );
@@ -85,7 +85,7 @@ class XmlElementRef : public XmlVal{
 public:
 	XmlElementRef(char*);
 	XmlElementRef(DynamicStr*);
-	~XmlElementRef();
+	~XmlElementRef() = default;
 	void UpdateObjName(char*);
 	void UpdateObjName(DynamicStr*);
 	char* getName();
