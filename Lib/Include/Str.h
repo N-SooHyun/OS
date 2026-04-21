@@ -46,9 +46,10 @@ namespace Dynamic {
 		}
 
 		//복사생성자 호출 (깊은복사)
-		DynamicStr(const DynamicStr& other) : capacity_size(other.capacity_size),
-			current_size(other.current_size), str_last_focus(other.str_last_focus) {
+		DynamicStr(const DynamicStr& other) : capacity_size(other.capacity_size)
+			, current_size(-1), str_last_focus(-1){
 			Str = new unsigned char[capacity_size];
+			this->Append_Str(other.Str);
 		}
 
 		//이동생성자 호출 

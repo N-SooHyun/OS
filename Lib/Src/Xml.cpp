@@ -172,44 +172,56 @@ void LinkedList_Prt(LinkedList<XmlVal>* RootNode) {
 	printf("================================================\n\n");
 }
 void XmlTestFunc(){
-	LinkedList<XmlVal> XmlVals(new XmlVal());
-	LinkedList_Prt(&XmlVals);
-	XmlVal* newNode = new XmlVal();
-	XmlVal* newNode2 = new XmlVal();
-	XmlVal* newNode3 = new XmlVal();
-	XmlVal* newNode4 = new XmlVal();
-	XmlVal* newNode5 = new XmlVal();
+	XmlObj Obj;
 
-	XmlVals.AddList(newNode);
-	LinkedList_Prt(&XmlVals);
-	XmlVals.AddList(newNode2, 1);
-	LinkedList_Prt(&XmlVals);
-	XmlVals.AddList(newNode3);
-	LinkedList_Prt(&XmlVals);
-	XmlVals.DelList(1);
-	LinkedList_Prt(&XmlVals);
-	XmlVals.DelList();
-	LinkedList_Prt(&XmlVals);
-
-	XmlVal* pNode = XmlVals.getHead()->getData();
-	
+	XmlVal* objVal = new XmlElementRef("Test");
+	XmlVal* Value = new XmlText("Test");
+	((XmlText*)Value)->UpdateValue("TT");
+	int debug = 10;	
 }
 
 /* ================================================
 * Xml Value(XmlObj or Value)
 ==================================================*/
-XmlVal::XmlVal() : Val(), isObj(false){}
-XmlVal::~XmlVal(){
-	if (isObj){
-		if (Val->ChildVal != nullptr){
-			delete Val->ChildVal;
-		}
-	}
-	else{
-		if (Val->StrVal != nullptr){
-			delete Val->StrVal;
-		}
-	}
+XmlVal::XmlVal(){}
+XmlVal::~XmlVal(){}
+void XmlVal::SetName(DynamicStr* lStr, DynamicStr* rStr){
+	lStr->Set_Str(rStr->Get_Str());
+}
+void XmlVal::SetName(DynamicStr* lStr, char* rStr){
+	lStr->Append_Char(rStr);
+}
+
+// XmlText
+XmlText::XmlText(char* newValue){
+	SetName(&Data, newValue);
+}
+XmlText::XmlText(DynamicStr* newValue){
+	SetName(&Data, newValue);
+}
+void XmlText::UpdateValue(char* UpdateVal){
+	Data.current_size = -1;
+	SetName(&Data, UpdateVal);
+}
+void XmlText::UpdateValue(DynamicStr* UpdateVal){
+	SetName(&Data, UpdateVal);
+}
+
+// XmlElements
+XmlElementRef::XmlElementRef(char* ObjName){
+	Obj = new XmlObj(ObjName);
+}
+XmlElementRef::XmlElementRef(DynamicStr* ObjName){
+	Obj = new XmlObj(ObjName);
+}
+void XmlElementRef::UpdateObjName(char* newObjName){
+	if (Obj == nullptr) return;
+	SetName(&Obj->Name, newObjName);
+
+}
+void XmlElementRef::UpdateObjName(DynamicStr* newObjName){
+	if (Obj == nullptr) return;
+	SetName(&Obj->Name, newObjName);
 }
 
 
@@ -220,13 +232,20 @@ XmlAttrObj::XmlAttrObj(){}
 XmlAttrObj::~XmlAttrObj(){}
 
 
+
 /* ================================================
 * Xml Class
 ==================================================*/
-XmlObj::XmlObj(){
+XmlObj::XmlObj(){}
+XmlObj::XmlObj(DynamicStr *Name){
+	this->Name.Set_Str(Name->Get_Str());
+}
+XmlObj::XmlObj(char *Name){
+	this->Name.Append_Str(Name);
+}
+XmlObj::~XmlObj(){
 	
 }
-XmlObj::~XmlObj(){}
 //객체에 객체를 넣는 경우(순서 중요)
 XmlObjOper XmlObj::operator()(int idx){
 	XmlObjOper test;

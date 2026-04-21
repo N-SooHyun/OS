@@ -9,6 +9,9 @@ void XmlTestFunc();
 class XmlObj;
 class XmlObjOper;
 class XmlAttrOper;
+class XmlVal;
+class XmlText;
+class XmlElementRef;
 
 typedef union{
 	DynamicStr* StrVal;
@@ -52,18 +55,44 @@ public:
 };
 
 class XmlVal{
+	friend class XmlObj;
 	//Creative Code
-	pXmlVal* Val;
-	bool isObj;								//Obj(t), Value(f)
-public:
+	//Dev Code
+public:		
 	XmlVal();
-	~XmlVal();
+	XmlVal();
+	virtual ~XmlVal();
 
 	//user Code
-	//추가해주는거 삭제해주는거 필요함
-	void SetAddObj();
-	
+	virtual char* getName() = 0;	//이름 반환할것(Value면 그냥 값, Obj면 Obj이름)
+	virtual void SetName(DynamicStr*, DynamicStr*);
+	virtual void SetName(DynamicStr*, char*);
 };
+
+class XmlText : public XmlVal{
+	DynamicStr Data = (32);	
+public:
+	XmlText(char* );
+	XmlText(DynamicStr* );
+
+	void UpdateValue(char* );
+	void UpdateValue(DynamicStr* );
+	char* getName();
+};
+
+class XmlElementRef : public XmlVal{
+	XmlObj* Obj;
+public:
+	XmlElementRef(char*);
+	XmlElementRef(DynamicStr*);
+	~XmlElementRef();
+	void UpdateObjName(char*);
+	void UpdateObjName(DynamicStr*);
+	char* getName();
+	XmlObj* getObj();
+	void setObj();		//Object를 새롭게 재구성하는것
+};
+
 
 class XmlAttrObj{
 	//Creative Code
@@ -78,6 +107,7 @@ public:
 };
 
 class XmlObj{
+	friend class XmlElementRef;
 	friend class XmlObjOper;
 	friend class XmlAttrOper;
 	//Creative Code
@@ -86,6 +116,8 @@ class XmlObj{
 	LinkedList<XmlVal> Vals;
 public:
 	XmlObj();
+	XmlObj(DynamicStr* Name);
+	XmlObj(char* Name);
 	~XmlObj();
 	
 	//Assignment Operator Overloading
