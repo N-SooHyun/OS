@@ -8,9 +8,9 @@ void main(){
 	XmlTestFunc();
 	//Test::TestMain t;
 	//t.TestFuncMain();
-	XmlObj Root;
+	XmlObj Root("Root");
 	Root() << "Test";		//값을 넣는 경우
-	XmlObj Root1;
+	XmlObj Root1("Root1");
 
 	//삽입의 경우
 	Root() << Root1;		//Chainning
