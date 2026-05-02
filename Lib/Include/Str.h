@@ -57,6 +57,12 @@ namespace Dynamic {
 			str_last_focus(other.str_last_focus), Str(other.Str) {
 		}
 
+		//문자열 비우는 동작
+		void str_free(){
+			Str = nullptr;
+			current_size = str_last_focus = capacity_size = - 1;
+		}
+
 		bool StrCmp(const char* Subject) {
 			const unsigned char* uSubject = nullptr;
 			ToUChar(uSubject, Subject);
