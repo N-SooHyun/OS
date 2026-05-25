@@ -10,13 +10,8 @@ class XmlObj;
 class XmlObjOper;
 class XmlAttrOper;
 class XmlVal;
-class XmlText;
-class XmlElementRef;
+class XmlStr;
 
-typedef union{
-	DynamicStr* StrVal;
-	XmlObj* ChildVal;
-}pXmlVal;
 
 /* =================================================================================
 * Linked List Lib
@@ -70,7 +65,9 @@ public:
 /* =============================
 * 내부 기능 클래스들
 ================================*/
+
 class XmlStr{
+	friend class XmlObj;
 public:
 	DynamicStr Name;		//크기는 완전 고정으로 하면 안될듯
 	XmlStr(char* newName, int StrSize = 32) : Name(StrSize){
@@ -107,7 +104,6 @@ protected:
 	XmlVal() = default;
 public:
 	virtual ~XmlVal() = default;
-
 	//user Code
 };
 
@@ -130,25 +126,30 @@ public:
 ================================*/
 //Xml객체들을 관리해주는 주체(소멸에 대한 책임 전부 짊어짐)
 class XmlAttrObj{
+	friend class XmlObj;
 	//Creative Code
 	DynamicStr Name = DynamicStr(128);		//속성자신의 이름
 	DynamicStr Value = DynamicStr(128);		//속성의 값	
 public:
 	XmlAttrObj();
+	XmlAttrObj(DynamicStr*, DynamicStr*);
+	XmlAttrObj(char*, char*);
 	~XmlAttrObj();
 
 	//User Code
-	
+	char* getName();
+	char* getValue();
 };
 
 
 class XmlObj : public XmlVal{
-	friend class XmlElementRef;
 	friend class XmlObjOper;
-	friend class XmlAttrOper;
+	friend class XmlStr;
+	friend class XmlAttrObj;
 	//Creative Code
 	//DynamicStr Name = DynamicStr(128);
 	XmlStr Name;
+//public:
 	LinkedList<XmlAttrObj> Attrs;
 	LinkedList<XmlVal> Vals;		//객체이거나 값이거나
 
@@ -156,7 +157,6 @@ class XmlObj : public XmlVal{
 	void DelAttrs();
 	void DelVals();
 
-	bool isVal();
 	void InitValSet();
 
 public:
@@ -169,16 +169,29 @@ public:
 	
 
 	//User Code
+	char* getName();
+	int getObjIdx();
+	int getAttrsIdx();
+
+	bool isVal();
+
 	void setVal(DynamicStr*);
 	void setVal(char*);
+	void setObj(DynamicStr*);
+	void setObj(char*);
 	void addObj(DynamicStr*);
 	void addObj(char*);
 
+	void setAttr(DynamicStr*, DynamicStr*);
+	void setAttr(char*, char*);
+	void addAttr(DynamicStr*, DynamicStr*);
+	void addAttr(char*, char*);
 
-	XmlValue* getVal();		
+
+	XmlValue* getVal();
 	XmlObj* getObj(int idx = -1);	//매개변수 값을 안넣을시 가장 마지막
-
-
+	XmlAttrObj* getAttr(int idx = -1); //매개변수 값을 안넣을시 가장 마지막?
+	
 
 	//Assignment Operator Overloading
 	XmlObjOper operator()(int = -1);	//Obj or Value

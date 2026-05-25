@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 //#include "Str.h"
 #include "../Include/Xml.h"
@@ -169,16 +170,102 @@ Node<T>* LinkedList<T>::get(int idx){
 	return target;
 }
 
+
+void XmlAttrPrint(XmlObj* Obj){
+	int AttrsIdx = Obj->getAttrsIdx();
+	AttrsIdx != -1 ? printf(" ") : 0;
+	for (int i = 0; i <= AttrsIdx; i++){
+		if (i == AttrsIdx) printf("%s = %s", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+		else printf("%s = %s ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+	}
+}
+
+void XmlValuePrint(XmlObj* Obj, int floor){
+	for (int i = 0; i < floor; i++){
+		printf("\t");
+	}
+	printf("<%s", Obj->getName());
+	XmlAttrPrint(Obj);
+	printf(">\n");
+	for (int i = 0; i <= floor; i++){
+		printf("\t");
+	}
+	printf("%s\n", Obj->getVal()->Val.getName());
+	for (int i = 0; i < floor; i++){
+		printf("\t");
+	}
+	printf("</%s>\n", Obj->getName());
+}
+
+void XmlObjPrint(XmlObj* Obj, int floor){
+	for (int i = 0; i < floor; i++){
+		printf("\t");
+	}
+	printf("<%s", Obj->getName());
+	XmlAttrPrint(Obj);
+	printf(">\n");
+
+	XmlObj* pObj = nullptr;
+
+
+	for (int i = 0; i <= Obj->getObjIdx(); i++){
+		pObj = Obj->getObj(i);
+
+		if (pObj->isVal()){
+			XmlValuePrint(pObj, floor+1);
+		}
+		else{
+			XmlObjPrint(pObj, floor+1);
+		}
+	}
+
+
+	for (int i = 0; i < floor; i++){
+		printf("\t");
+	}
+	printf("</%s>\n", Obj->getName());
+}
+
+void XmlPrint(XmlObj* Root){
+	XmlVal* cursor = Root;
+	XmlObj* Obj = dynamic_cast<XmlObj*>(cursor);	
+	XmlObj* pObj = nullptr;
+	
+	//Object는 무조건 여러개인데?
+	if (Obj->isVal()){
+		XmlValuePrint(Obj, 0);
+	}
+	else{
+		XmlObjPrint(Obj, 0);
+	}
+}
+
+
+
 void DelTest(){
 	XmlObj root("Root");
 
-	root.addObj("Child");
+	root.setObj("Child1");
+	root.addObj("Child2");
+	root.addObj("Child3");
+	XmlObj* ctrlObj = root.getObj(0);
+	char str[32];
+	for (int i = 0; i < 3; i++){
+		ctrlObj = root.getObj(i);	
+		sprintf(str, "I'm Child%d", i);
+		ctrlObj->setVal(str);
+	}
+	
+	root.setAttr("Test", "Test");
 
-	XmlObj* Child = root.getObj();
+	//for (int i = 0; i < 3; i++){
+	//	ctrlObj = root.getObj(i);
+	//	sprintf(str, "Child%d Value", i);
+	//	ctrlObj->setAttr(str, "Value");
+	//}
 
-	Child->setVal("TestValue");
-
-	printf("%s\n", Child->c_toString());
+	//객체를 처음 만들고 나면 무조건 ""값이 있는데 Value상태로 "" 이런 상태여야함
+	XmlPrint(&root);
 }
 
 void XmlTestFunc(){
@@ -210,8 +297,21 @@ DynamicStr* XmlValue::d_toString()  {
 * Xml Attribute Class
 ==================================================*/
 XmlAttrObj::XmlAttrObj(){}
+XmlAttrObj::XmlAttrObj(DynamicStr* Name, DynamicStr* Value){
+	this->Name.Set_Str(Name->Get_Str());
+	this->Value.Set_Str(Value->Get_Str());
+}
+XmlAttrObj::XmlAttrObj(char* Name, char* Value){
+	this->Name.Set_Str(Name);
+	this->Value.Set_Str(Value);
+}
 XmlAttrObj::~XmlAttrObj(){}
-
+char* XmlAttrObj::getName(){
+	return Name.Get_Str();
+}
+char* XmlAttrObj::getValue(){
+	return Value.Get_Str();
+}
 
 
 
@@ -226,7 +326,7 @@ XmlObj::XmlObj(char *Name) : Name(Name, 128){
 	InitValSet();
 }
 char* XmlObj::c_toString() {
-	DynamicStr* toStr = new DynamicStr(128);
+	auto* toStr = new DynamicStr(128);
 	toStr->Append_Char("<");
 	toStr->Append_Str(Name.getName());	
 	toStr->Append_Char(">");
@@ -250,7 +350,7 @@ char* XmlObj::c_toString() {
 	return ptoStr;
 }
 DynamicStr* XmlObj::d_toString()  {
-	DynamicStr* toStr = new DynamicStr(128);
+	auto* toStr = new DynamicStr(128);
 	toStr->Append_Char("<");
 	toStr->Append_Str(Name.getName());
 	toStr->Append_Char(">");
@@ -284,6 +384,16 @@ bool XmlObj::isVal(){
 void XmlObj::DelAttrs(){Attrs.AllDelList();}
 void XmlObj::DelVals(){}
 
+char* XmlObj::getName(){
+	return Name.getName();
+}
+int XmlObj::getObjIdx(){
+	return Vals.Index;
+}
+int XmlObj::getAttrsIdx(){
+	return Attrs.Index;
+}
+
 void XmlObj::setVal(DynamicStr* newVal){
 	XmlVal* pnewVal = new XmlValue(newVal);
 	Vals.setNode(pnewVal);
@@ -291,6 +401,14 @@ void XmlObj::setVal(DynamicStr* newVal){
 void XmlObj::setVal(char* newVal){
 	XmlVal* pnewVal = new XmlValue(newVal);
 	Vals.setNode(pnewVal);
+}
+void XmlObj::setObj(DynamicStr* newObj){
+	XmlVal* pnewObj = new XmlObj(newObj);
+	Vals.setNode(pnewObj);
+}
+void XmlObj::setObj(char* newObj){
+	XmlVal* pnewObj = new XmlObj(newObj);
+	Vals.setNode(pnewObj);
 }
 void XmlObj::addObj(DynamicStr* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
@@ -309,6 +427,23 @@ void XmlObj::addObj(char* newObj){
 	else{
 		Vals.AddList(pnewObj);
 	}
+}
+
+void XmlObj::setAttr(DynamicStr* AttrsName, DynamicStr* AttrsValue){
+	auto* newAttr = new XmlAttrObj(AttrsName, AttrsValue);
+	Attrs.setNode(newAttr);
+}
+void XmlObj::setAttr(char* AttrsName, char* AttrsValue){
+	auto* newAttr = new XmlAttrObj(AttrsName, AttrsValue);
+	Attrs.setNode(newAttr);
+}
+void XmlObj::addAttr(DynamicStr* AttrsName, DynamicStr* AttrsValue){
+	auto* newAttr = new XmlAttrObj(AttrsName, AttrsValue);
+	Attrs.AddList(newAttr);
+}
+void XmlObj::addAttr(char* AttrsName, char* AttrsValue){
+	auto* newAttr = new XmlAttrObj(AttrsName, AttrsValue);
+	Attrs.AddList(newAttr);
 }
 
 XmlValue* XmlObj::getVal(){
@@ -335,6 +470,21 @@ XmlObj* XmlObj::getObj(int idx){
 	}	
 	XmlVal* data = pNode->getData();
 	return dynamic_cast<XmlObj*>(data);
+}
+XmlAttrObj* XmlObj::getAttr(int idx){
+	if (Attrs.Index <= -1) return nullptr;	//속성이 없는 경우임
+	Node<XmlAttrObj>* pNode = nullptr;
+
+	if (idx == -1)
+		pNode = Attrs.getTail();	//의미가 있나? 속성은?
+	else
+		pNode = Attrs.get(idx);
+
+	if (pNode == nullptr)
+		return nullptr;
+
+	XmlAttrObj* data = pNode->getData();
+	return data;
 }
 
 //객체에 객체를 넣는 경우(순서 중요)

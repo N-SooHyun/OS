@@ -200,7 +200,7 @@ namespace Dynamic {
 		return Str[focus];
 		}*/
 
-		//문자열 통으로 삽입하기
+		//문자열 통으로 삽입하기 깊은 복사
 		void Set_Str(const char* new_str) {
 			const unsigned char* unew_str = nullptr;
 			ToUChar(unew_str, new_str);
