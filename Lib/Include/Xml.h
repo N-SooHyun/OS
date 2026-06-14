@@ -37,7 +37,7 @@ class LinkedList{
 	Node<T>* Head;
 	Node<T>* Tail;
 public:
-	int Index;		
+	int Index;
 	LinkedList();		
 	LinkedList(T* Root);
 	~LinkedList();
@@ -170,8 +170,8 @@ public:
 
 	//User Code
 	char* getName();
-	int getObjIdx();
-	int getAttrsIdx();
+	int getObjIdx();	//인덱스개수를 반환 1개면 0개로 알려줌 없으면(Value면) -1
+	int getAttrsIdx();	//없으면 -1 있으면 0부터개수
 
 	bool isVal();
 
@@ -189,8 +189,8 @@ public:
 
 
 	XmlValue* getVal();
-	XmlObj* getObj(int idx = -1);	//매개변수 값을 안넣을시 가장 마지막
-	XmlAttrObj* getAttr(int idx = -1); //매개변수 값을 안넣을시 가장 마지막?
+	XmlObj* getObj(int idx = -1);	//매개변수 값을 안넣을시 가장 마지막 범위이상하면 null
+	XmlAttrObj* getAttr(int idx = -1); //매개변수 값을 안넣을시 가장 마지막 범위이상하면 null
 	
 
 	//Assignment Operator Overloading

@@ -175,8 +175,8 @@ void XmlAttrPrint(XmlObj* Obj){
 	int AttrsIdx = Obj->getAttrsIdx();
 	AttrsIdx != -1 ? printf(" ") : 0;
 	for (int i = 0; i <= AttrsIdx; i++){
-		if (i == AttrsIdx) printf("%s = %s", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
-		else printf("%s = %s ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+		if (i == AttrsIdx) printf("%s = \"%s\"", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+		else printf("%s = \"%s\" ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
 	}
 }
 
@@ -250,19 +250,28 @@ void DelTest(){
 	root.addObj("Child3");
 	XmlObj* ctrlObj = root.getObj(0);
 	char str[32];
-	for (int i = 0; i < 3; i++){
-		ctrlObj = root.getObj(i);	
+	for (int i = 0; ; i++){
+		ctrlObj = root.getObj(i);
+		if (ctrlObj == nullptr)
+			break;
 		sprintf(str, "I'm Child%d", i);
 		ctrlObj->setVal(str);
 	}
-	
+		
 	root.setAttr("Test", "Test");
+	root.setAttr("Attr", "Value");
+	root.addAttr("Attr2", "Val");
 
-	//for (int i = 0; i < 3; i++){
-	//	ctrlObj = root.getObj(i);
-	//	sprintf(str, "Child%d Value", i);
-	//	ctrlObj->setAttr(str, "Value");
-	//}
+
+	XmlAttrObj* attrObj = root.getAttr(0);
+	for (int i = 0; i; i++){
+		attrObj = root.getAttr(i);
+		if (attrObj == nullptr)
+			break;
+		printf("속성 : %s=\"%s\"\n", attrObj->getName(), attrObj->getValue());
+	}
+
+	printf("Value : %s\n", root.c_toString());
 
 	//객체를 처음 만들고 나면 무조건 ""값이 있는데 Value상태로 "" 이런 상태여야함
 	XmlPrint(&root);
@@ -388,6 +397,7 @@ char* XmlObj::getName(){
 	return Name.getName();
 }
 int XmlObj::getObjIdx(){
+	if (isVal()) return -1;
 	return Vals.Index;
 }
 int XmlObj::getAttrsIdx(){
@@ -451,6 +461,8 @@ XmlValue* XmlObj::getVal(){
 		//Obj가 들어있는데 Val을 꺼내려고 해서 실패하는 경우
 		return nullptr;
 	}
+
+	auto *pVal = Vals.getHead()->getData();
 
 	return dynamic_cast<XmlValue*>(Vals.getHead()->getData());
 }
