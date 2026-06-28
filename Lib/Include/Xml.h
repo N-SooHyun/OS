@@ -129,7 +129,7 @@ class XmlAttrObj{
 	friend class XmlObj;
 	//Creative Code
 	DynamicStr Name = DynamicStr(128);		//속성자신의 이름
-	DynamicStr Value = DynamicStr(128);		//속성의 값	
+	DynamicStr Value = DynamicStr(128);		//속성의 값
 public:
 	XmlAttrObj();
 	XmlAttrObj(DynamicStr*, DynamicStr*);
@@ -158,6 +158,16 @@ class XmlObj : public XmlVal{
 	void DelVals();
 
 	void InitValSet();
+
+	enum class TYPE{
+		OBJ,
+		ATTR,
+	};
+
+	template<typename T>
+	T SearchObjAttr(int idx, TYPE);
+	template<typename T>
+	T SearchObjAttr(char*, TYPE);
 
 public:
 	virtual char* c_toString() override;
@@ -190,12 +200,16 @@ public:
 
 	XmlValue* getVal();
 	XmlObj* getObj(int idx = -1);	//매개변수 값을 안넣을시 가장 마지막 범위이상하면 null
+	XmlObj* getObj(char*);
 	XmlAttrObj* getAttr(int idx = -1); //매개변수 값을 안넣을시 가장 마지막 범위이상하면 null
+	XmlAttrObj* getAttr(char*);
 	
 
 	//Assignment Operator Overloading
 	XmlObjOper operator()(int = -1);	//Obj or Value
-	XmlAttrOper operator[](char*);		//AttrObj
+	XmlObjOper operator()(char*);		
+	XmlAttrOper operator[](int);		//AttrObj
+	XmlAttrOper operator[](char*);		
 };
 
 
@@ -216,8 +230,8 @@ public:
 class XmlObjOper{
 	XmlObj* ObjRoot;
 public:
-	XmlObjOper();
-	~XmlObjOper();
+	XmlObjOper(XmlObj* ObjRoot);
+	//~XmlObjOper();
 	//Assignment Operator Overloading
 	void operator<<(char*);
 	void operator<<(DynamicStr*);
@@ -235,10 +249,10 @@ public:
 };
 
 class XmlAttrOper{
-	XmlAttrObj* AttrObjRoot;
+	XmlAttrObj* AttrRoot;
 public:
-	XmlAttrOper();
-	~XmlAttrOper();
+	XmlAttrOper(XmlAttrObj* AttrRoot);
+	//~XmlAttrOper();
 	//Assignment Operator Overloading
 	void operator=(char*);
 	void operator=(DynamicStr*);

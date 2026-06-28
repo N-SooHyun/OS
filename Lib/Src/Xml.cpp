@@ -30,6 +30,7 @@ void LinkedList<T>::AllDelList(){
 	while (cur != nullptr){
 		Node<T>* next = cur->next;
 		cur->next = nullptr;
+		delete cur->Data;
 		delete cur;
 		cur = next;
 	}
@@ -277,9 +278,33 @@ void DelTest(){
 	XmlPrint(&root);
 }
 
+void OperTest(){
+	XmlObj root("Root");
+
+	root.setObj("Child1");
+	root.setAttr("Attr1", "Value");
+	
+	root.getObj(0);
+	root.getObj("Child1");
+	root.getAttr("Attr1");
+
+	//오퍼레이터 반환
+	root(0);		//객체용(객체인덱스로 찾기)
+	root("Child1");	//객체용(객체명으로 찾기)
+	root[0];		//속성용(속성인덱스로 찾기)
+	root["Attr"];	//속성용(속성명으로 찾기)
+
+	//<대입>
+
+	//<반환>
+
+	root.c_toString();
+
+}
+
 void XmlTestFunc(){
 	DelTest();
-	
+	//OperTest();
 
 	
 	int debug = 10;	
@@ -336,9 +361,9 @@ XmlObj::XmlObj(char *Name) : Name(Name, 128){
 }
 char* XmlObj::c_toString() {
 	auto* toStr = new DynamicStr(128);
-	toStr->Append_Char("<");
-	toStr->Append_Str(Name.getName());	
-	toStr->Append_Char(">");
+	//toStr->Append_Char("<");
+	//toStr->Append_Str(Name.getName());	
+	//toStr->Append_Char(">");
 
 	Node<XmlVal>* Cur = Vals.getHead();
 	
@@ -346,9 +371,9 @@ char* XmlObj::c_toString() {
 		toStr->Append_Str(Cur->getData()->c_toString());
 		Cur = Cur->getNextNode();
 	}
-	toStr->Append_Str("</");
-	toStr->Append_Str(Name.getName());
-	toStr->Append_Char(">");
+	//toStr->Append_Str("</");
+	//toStr->Append_Str(Name.getName());
+	//toStr->Append_Char(">");
 
 	char* ptoStr = toStr->Get_Str();
 
@@ -358,11 +383,11 @@ char* XmlObj::c_toString() {
 
 	return ptoStr;
 }
-DynamicStr* XmlObj::d_toString()  {
+DynamicStr* XmlObj::d_toString()  {	//호출자가 delete 해줘야함(이거는 안쓰는게 좋은듯)
 	auto* toStr = new DynamicStr(128);
-	toStr->Append_Char("<");
-	toStr->Append_Str(Name.getName());
-	toStr->Append_Char(">");
+	//toStr->Append_Char("<");
+	//toStr->Append_Str(Name.getName());
+	//toStr->Append_Char(">");
 
 	Node<XmlVal>* Cur = Vals.getHead();
 
@@ -370,9 +395,9 @@ DynamicStr* XmlObj::d_toString()  {
 		toStr->Append_Str(Cur->getData()->c_toString());
 		Cur = Cur->getNextNode();
 	}
-	toStr->Append_Str("</");
-	toStr->Append_Str(Name.getName());
-	toStr->Append_Char(">");
+	//toStr->Append_Str("</");
+	//toStr->Append_Str(Name.getName());
+	//toStr->Append_Char(">");
 
 	return toStr;
 }
@@ -483,6 +508,23 @@ XmlObj* XmlObj::getObj(int idx){
 	XmlVal* data = pNode->getData();
 	return dynamic_cast<XmlObj*>(data);
 }
+XmlObj* XmlObj::getObj(char* name){
+	if (isVal()){
+		return nullptr;
+	}
+	Node<XmlVal>* pNode = nullptr;
+	XmlObj* pObj = nullptr;
+	pNode = Vals.getHead();
+	for (int i = 0; i <= Vals.Index; i++){
+		pObj = dynamic_cast<XmlObj*>(pNode->getData());
+		if (DynamicStr::StrCmp_Org(pObj->getName(), name)){
+			return pObj;
+		}
+		pNode = pNode->getNextNode();
+	}
+	return nullptr;	//Search Failed
+}
+
 XmlAttrObj* XmlObj::getAttr(int idx){
 	if (Attrs.Index <= -1) return nullptr;	//속성이 없는 경우임
 	Node<XmlAttrObj>* pNode = nullptr;
@@ -498,17 +540,91 @@ XmlAttrObj* XmlObj::getAttr(int idx){
 	XmlAttrObj* data = pNode->getData();
 	return data;
 }
+XmlAttrObj* XmlObj::getAttr(char* name){
+	if (Attrs.Index <= -1) return nullptr;	//속성이 없는 경우임
+	Node<XmlAttrObj>* pNode = nullptr;
+	XmlAttrObj* pAttr = nullptr;
+	pNode = Attrs.getHead();
+
+	for (int i = 0; i <= Attrs.Index; i++){
+		pAttr = dynamic_cast<XmlAttrObj*>(pNode->getData());
+		if (DynamicStr::StrCmp_Org(pAttr->getName(), name)){
+			return pAttr;
+		}
+		pNode = pNode->getNextNode();
+	}
+	return nullptr; //Search Failed
+
+}
+
+
+//객체 찾는 함수
+template<typename T>
+T XmlObj::SearchObjAttr(int idx, TYPE type){	//XmlObj* or XmlAttrObj* 만 반환
+	if (type == TYPE::OBJ){
+		T Obj = nullptr;
+		void* raw = this->getObj(idx);
+		Obj = static_cast<T>(raw);
+
+		return Obj;
+	}
+	else{
+		T Attr = nullptr;
+		void* raw = this->getAttr(idx);
+		Attr = static_cast<T>(raw);
+
+		return Attr;
+	}
+	return nullptr;
+}
+template<typename T>
+T XmlObj::SearchObjAttr(char* Name, TYPE type){	//XmlObj* or XmlAttrObj* 만 반환
+	if (type == TYPE::OBJ){
+		T Obj = nullptr;
+		void* raw = this->getObj(Name);
+		Obj = static_cast<T>(raw);
+
+		return Obj;
+	}
+	else{
+		T Attr = nullptr;
+		void* raw = this->getAttr(Name);
+		Attr = static_cast<T>(raw);
+
+		return Attr;
+	}
+	return nullptr;
+}
 
 //객체에 객체를 넣는 경우(순서 중요)
 XmlObjOper XmlObj::operator()(int idx){
-	XmlObjOper test;
-	test.SetObjRoot(this);
-	return test;
+	//객체를 찾기
+	XmlObj* obj = this->SearchObjAttr<XmlObj*>(idx, TYPE::OBJ);
+
+	XmlObjOper ObjOper(obj);
+	return ObjOper;
 }
+
+XmlObjOper XmlObj::operator()(char* ObjName){
+	XmlObj* obj = this->SearchObjAttr<XmlObj*>(ObjName, TYPE::OBJ);
+
+	XmlObjOper ObjOper(obj);
+	return ObjOper;
+}
+
 //객체의 속성을 부여하는 경우
+XmlAttrOper XmlObj::operator[](int idx){
+	XmlAttrObj* attr = this->SearchObjAttr<XmlAttrObj*>(idx, TYPE::ATTR);
+
+	XmlAttrOper AttrOper(attr);
+	return AttrOper;
+}
+
 XmlAttrOper XmlObj::operator[](char* AttrName){
-	XmlAttrOper test;
-	return test;
+	XmlAttrObj* attr = this->SearchObjAttr<XmlAttrObj*>(AttrName, TYPE::ATTR);
+	
+	XmlAttrOper AttrOper(attr);
+	return AttrOper;
 }
 
 
@@ -516,8 +632,10 @@ XmlAttrOper XmlObj::operator[](char* AttrName){
 /* ================================================
 * Xml Obj Operator
 ==================================================*/
-XmlObjOper::XmlObjOper(){}
-XmlObjOper::~XmlObjOper(){}
+XmlObjOper::XmlObjOper(XmlObj* ObjRoot) : ObjRoot(ObjRoot){
+
+}
+//XmlObjOper::~XmlObjOper(){}
 void XmlObjOper::operator<<(char*){
 	
 }
@@ -548,8 +666,10 @@ void XmlObjOper::SetObjRoot(XmlObj* xmlobj){
 /* ================================================
 * Xml Attr Operator
 ==================================================*/
-XmlAttrOper::XmlAttrOper(){}
-XmlAttrOper::~XmlAttrOper(){}
+XmlAttrOper::XmlAttrOper(XmlAttrObj* AttrRoot) :AttrRoot(AttrRoot){
+
+}
+//XmlAttrOper::~XmlAttrOper(){}
 void XmlAttrOper::operator=(char* rStrVal){
 
 }
