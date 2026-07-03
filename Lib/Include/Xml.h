@@ -3,73 +3,36 @@
 #include <stdio.h>
 #include <iostream>
 #include "Str.h"
-//#define UINT32 unsigned int
+#include "LinkedList.h"
+
 using namespace Dynamic;
-void XmlTestFunc();
+
+/* =================================================================================
+* 전방 선언
+===================================================================================*/
 class XmlObj;
 class XmlObjOper;
 class XmlAttrOper;
 class XmlVal;
 class XmlStr;
-class AssignOper;
 
-/* =================================================================================
-* Linked List Lib
-===================================================================================*/
-
-template<typename T>
-class Node{
-	T* Data;
-	Node* next;
-	Node* prev;
-public:
-	Node() : Data(nullptr), next(nullptr), prev(nullptr){}
-	~Node() = default;
-	template <typename U>friend class LinkedList;
-
-	T* getData(){ return Data; }
-	Node* getNextNode(){ return next; }
-	Node* getPrevNode(){ return prev; }
-};
-
-template <typename T>
-class LinkedList{
-	Node<T>* Head;
-	Node<T>* Tail;
-public:
-	int Index;
-	LinkedList();		
-	LinkedList(T* Root);
-	~LinkedList();
-	//user code
-	void setNode(T* SetNode);
-	void AllDelList();					//전체를 비워야하는 경우(객체에서 값으로 바뀐다거나 하는 경우)
-	void AddList(T* AddNode);			//마지막에만 추가
-	void DelList();						//마지막에만 제거
-	void AddList(T* AddNode, int idx);
-	void DelList(int idx);
-	Node<T>* getHead();
-	Node<T>* getTail();
-	Node<T>* get(int);
-};
-
-
-
-
-
+void XmlTestFunc();
+void XmlPrint(XmlObj* Root);
 
 
 /* =================================================================================
-* Xml Structer
+* 값(Value) 계층
+* 이름을 감싸는 보조 클래스 XmlStr -> XmlVal(추상) -> XmlValue(실제 값 노드)
+*
+* 주의: XmlValue가 XmlStr을 포인터가 아니라 값으로 직접 소유(XmlStr Val;)하기 때문에
+* XmlStr은 반드시 XmlValue보다 앞에서 완전히 정의되어 있어야 한다.
+* (상속 때와 똑같은 규칙 - 값으로 소유하는 멤버도 완전한 타입이 필요하다)
 ===================================================================================*/
-/* =============================
-* 내부 기능 클래스들
-================================*/
 
 class XmlStr{
 	friend class XmlObj;
 public:
-	DynamicStr Name;		//크기는 완전 고정으로 하면 안될듯
+	DynamicStr Name;	// 크기는 상황 봐가며 조정 예정
 	XmlStr(char* newName, int StrSize = 32) : Name(StrSize){
 		Name.Append_Str(newName);
 	}
@@ -77,12 +40,10 @@ public:
 		Name.Set_Str(newName->Get_Str());
 	}
 
-	//완전히 책임을 넘길지 말지는 애매한 부분(참조 혹은 복사 TBD)
 	char* getName(){
 		return Name.Get_Str();
 	}
 
-	//Update 해줄것
 	void SetName(char* setName){
 		Name.Str_Clear();
 		Name.Append_Str(setName);
@@ -98,18 +59,14 @@ class XmlVal{
 	friend class XmlStr;
 	virtual char* c_toString() = 0;
 	virtual DynamicStr* d_toString() = 0;
-	//Creative Code
-	//Dev Code
 protected:
 	XmlVal() = default;
 public:
 	virtual ~XmlVal() = default;
-	//user Code
 };
 
-//<Obj>값</Obj> 객체안에 값을 의미
+// <Obj>값</Obj> 형태에서 값(텍스트) 부분을 의미
 class XmlValue : public XmlVal{
-protected:
 public:
 	virtual char* c_toString() override;
 	virtual DynamicStr* d_toString() override;
@@ -117,8 +74,17 @@ public:
 	XmlValue(char*);
 	XmlValue(DynamicStr*);
 	~XmlValue() = default;
-
 };
+
+
+/* =================================================================================
+* 대입 연산자 믹스인 계층
+*
+* TargetProvider가 최상위 인터페이스(GetTarget 순수가상)이고,
+* AssignObjOper / AssignAttrOper가 이를 virtual 상속한다.
+* 실제 조작 대상이 자기 자신(XmlObj)인지, 다른 곳을 가리키는 대리자(XmlObjOper)인지는
+* 이 두 믹스인은 몰라도 되고, 각 자식이 GetTarget()으로만 알려주면 된다.
+===================================================================================*/
 
 class TargetProvider{
 protected:
@@ -129,26 +95,25 @@ public:
 
 class AssignObjOper : public virtual TargetProvider{
 	bool ValSet(char*);
-	bool ValSet(DynamicStr*);	
+	bool ValSet(DynamicStr*);
 public:
-
 	/*
-		대입은 부모인 자신도 대체
-		체이닝 Add는 자식객체에만 적용
-		<Root></Root> -> lVal
-		<Child></Child> -> rVal
-		lVal = rVal;
-		lVal -> <Child></Child>가 됨
+	좌변은 부모든 자식이든 상관없이 그냥 하나의 XmlObj다.
+	<<는 항상 "자식으로 추가"라는 뜻으로 통일한다.
+	<Root></Root> -> lVal
+	<Child></Child> -> rVal
+	lVal << rVal;
+	-> lVal 안에 <Child></Child>가 자식으로 추가됨
 	*/
-	void operator<<(char*);				//Value Set or Obj Add
-	void operator<<(DynamicStr*);		//Value Set or Obj Add
-	void operator<<(XmlObj*);			//Obj Add(Deep Copy)
-	void operator<<(XmlObj&);			//Obj Add(Deep Copy)
+	void operator<<(char*);				// Value Set or Obj Add
+	void operator<<(DynamicStr*);			// Value Set or Obj Add
+	void operator<<(XmlObj*);				// Obj Add (Deep Copy)
+	void operator<<(XmlObj&);				// Obj Add (Deep Copy)
 
-	void operator=(char*);				//Value Set or Obj Set
-	void operator=(DynamicStr*);		//Value Set or Obj Set
-	void operator=(XmlObj*);			//Obj Set(Deep Copy)
-	void operator=(XmlObj&);			//Obj Set(Deep Copy)
+	void operator=(char*);					// Value Set or Obj Set
+	void operator=(DynamicStr*);			// Value Set or Obj Set
+	void operator=(XmlObj*);				// Obj Set (Deep Copy)
+	void operator=(XmlObj&);				// Obj Set (Deep Copy)
 
 	void DepCpy(XmlObj*, XmlObj*);
 };
@@ -159,33 +124,31 @@ protected:
 		OBJ,
 		ATTR,
 	};
-	virtual XmlObj* GetTarget() = 0;
 public:
 	template<typename T>
 	T SearchObjAttr(int idx, TYPE);
 	template<typename T>
 	T SearchObjAttr(char*, TYPE);
-	XmlAttrOper operator[](int);		//AttrObj
+
+	XmlAttrOper operator[](int);		// AttrObj 검색
 	XmlAttrOper operator[](char*);
 };
 
 
-/* =============================
-* 외부 클래스
-================================*/
-//Xml객체들을 관리해주는 주체(소멸에 대한 책임 전부 짊어짐)
+/* =================================================================================
+* 속성 데이터 클래스 - 이름+값만 갖는 독립적인 저장소
+===================================================================================*/
+
 class XmlAttrObj{
 	friend class XmlObj;
-	//Creative Code
-	DynamicStr Name = DynamicStr(128);		//속성자신의 이름
-	DynamicStr Value = DynamicStr(128);		//속성의 값
+	DynamicStr Name = DynamicStr(128);		// 속성의 이름
+	DynamicStr Value = DynamicStr(128);	// 속성의 값
 public:
 	XmlAttrObj();
 	XmlAttrObj(DynamicStr*, DynamicStr*);
 	XmlAttrObj(char*, char*);
 	~XmlAttrObj();
 
-	//User Code
 	char* getName();
 	char* getValue();
 	void setValue(char*);
@@ -193,41 +156,41 @@ public:
 };
 
 
+/* =================================================================================
+* XmlObj - 메인 클래스
+* 노드 하나가 값(Value)이거나, 자식들을 담는 컨테이너이거나 둘 중 하나다.
+===================================================================================*/
+
 class XmlObj : public XmlVal, public AssignObjOper, public AssignAttrOper{
 	friend class XmlObjOper;
 	friend class XmlStr;
 	friend class XmlAttrObj;
-	//Creative Code
-	//DynamicStr Name = DynamicStr(128);
-	XmlStr Name;
-//public:
-	LinkedList<XmlAttrObj> Attrs;
-	LinkedList<XmlVal> Vals;		//객체이거나 값이거나
 
-	//Develop Code
+	XmlStr Name;
+	LinkedList<XmlAttrObj> Attrs;
+	LinkedList<XmlVal> Vals;		// 자식 객체이거나 값이거나
+
 	void InitValSet();
-	
+
 protected:
 	XmlObj* GetTarget();
 
 public:
 	virtual char* c_toString() override;
 	virtual DynamicStr* d_toString() override;
-	//XmlObj();
+
 	XmlObj(DynamicStr* Name);
 	XmlObj(char* Name);
 	~XmlObj() = default;
-	
 
-	//User Code	
 	void DelAttrs();
 	void DelVals();
 
 	char* getName();
 	void setName(char*);
 	void setName(DynamicStr*);
-	int getObjIdx();	//인덱스개수를 반환 1개면 0개로 알려줌 없으면(Value면) -1
-	int getAttrsIdx();	//없으면 -1 있으면 0부터개수
+	int getObjIdx();	// 자식이 있으면 마지막 인덱스, 값(Value) 노드면 -1
+	int getAttrsIdx();	// 속성 없으면 -1, 있으면 0부터
 
 	bool isVal();
 
@@ -243,64 +206,73 @@ public:
 	void addAttr(DynamicStr*, DynamicStr*);
 	void addAttr(char*, char*);
 
-
 	XmlValue* getVal();
-	XmlObj* getObj(int idx = -1);	//매개변수 값을 안넣을시 가장 마지막, 범위이상하면 null
+	XmlObj* getObj(int idx = -1);		// idx 생략 시 마지막 자식, 범위초과면 nullptr
 	XmlObj* getObj(char*);
-	XmlAttrObj* getAttr(int idx = -1); //매개변수 값을 안넣을시 가장 마지막, 범위이상하면 null
+	XmlAttrObj* getAttr(int idx = -1);	// idx 생략 시 마지막 속성, 범위초과면 nullptr
 	XmlAttrObj* getAttr(char*);
-	
 
-	//Assignment Operator Overloading
-	XmlObjOper operator()(int = -1);	//Obj or Value
-	XmlObjOper operator()(char*);		
-	
+	// 자식 인덱싱 연산자 - 반환된 XmlObjOper를 통해 대입/체이닝/속성접근이 이어짐
+	XmlObjOper operator()(int = -1);
+	XmlObjOper operator()(char*);
 
-
+	// AssignObjOper의 대입/체이닝 연산자를 그대로 재사용
 	using AssignObjOper::operator=;
 	using AssignObjOper::operator<<;
-	void operator=(XmlObj& rhs){
+
+	// XmlObj&를 그대로 받는 시그니처는 컴파일러가 암시적으로 만드는
+	// 복사 대입 연산자와 충돌하므로 직접 재정의해서 부모 로직으로 위임한다
+	void operator=(const XmlObj& rhs){
 		XmlObj* lVal = GetTarget();
-		XmlObj* rVal = rhs.GetTarget();   // rhs도 자기 GetTarget()으로 진짜 대상 획득
+		XmlObj* rVal = const_cast<XmlObj&>(rhs).GetTarget();	// rhs도 자기 GetTarget()으로 진짜 대상을 얻는다
+		if (lVal == rVal) return;
 		lVal->DelVals();
 		lVal->DelAttrs();
 		DepCpy(lVal, rVal);
 	}
-	XmlObjOper Insert(int idx);
 
+	XmlObjOper Insert(int idx);
 };
 
 
+/* =================================================================================
+* 대리 객체(Proxy) 계층
+*
+* XmlObjOper - 다른 XmlObj를 가리키며 XmlObj와 동일한 API를 그대로 노출한다.
+* XmlAttrOper - 속성 하나만 다루는 완전히 독립적인 클래스다.
+*               진입 경로가 하나뿐이라 Assign 계열을 상속할 이유가 없다.
+===================================================================================*/
 
-/* =============================
-* 연산자 오버로딩 클래스들
-================================*/
-
-//Xml객체들을 생성해주는 주체들
 class XmlObjOper : public AssignObjOper, public AssignAttrOper{
 	XmlObj* ObjRoot;
 protected:
 	XmlObj* GetTarget();
 public:
 	XmlObjOper(XmlObj* ObjRoot);
-	//Assignment Operator Overloading
+
 	using AssignObjOper::operator=;
 	using AssignObjOper::operator<<;
-	void operator=(XmlObjOper& rhs){
-		AssignObjOper::operator=(const_cast<XmlObjOper&>(rhs));
+
+	// XmlObjOper&끼리의 대입도 각자 GetTarget()으로 진짜 대상을 구해서 위임한다.
+	// (explicit 변환연산자를 우회하지 않는 이식성 있는 방식)
+	void operator=(const XmlObjOper& rhs){
+		XmlObj* lVal = GetTarget();
+		//XmlObj* rVal = rhs.GetTarget();
+		XmlObj* rVal = const_cast<XmlObjOper&>(rhs).GetTarget();
+		if (lVal == rVal) return;
+		lVal->DelVals();
+		lVal->DelAttrs();
+		DepCpy(lVal, rVal);
 	}
-	
+
 	XmlObjOper Insert(int idx);
 
-	//Conversion Operator Overloading
+	// 변환 연산자 - 아직 stub 상태, 실제 구현 채워야 함
 	explicit operator char*();
 	explicit operator DynamicStr*();
 	explicit operator XmlObj*();
 	explicit operator XmlObj();
 
-	//복사생성은 책임없는 클래스이기 때문에 알아서 만들어짐 생략가능
-
-	//UserCode
 	void SetObjRoot(XmlObj*);
 };
 
@@ -308,18 +280,11 @@ class XmlAttrOper{
 	XmlAttrObj* AttrRoot;
 public:
 	XmlAttrOper(XmlAttrObj* AttrRoot);
-	//~XmlAttrOper();
-	//Assignment Operator Overloading
+
 	void operator=(char*);
 	void operator=(DynamicStr*);
 
-	//Conversion Operator Overloading
+	// 변환 연산자 - 아직 stub 상태, 실제 구현 채워야 함
 	operator char*();
 	operator DynamicStr*();
-
 };
-
-
-
-
-

@@ -18,6 +18,7 @@
     <ClInclude Include="..\Lib\Include\File.h" />
     <ClInclude Include="..\Lib\Include\Ini.h" />
     <ClInclude Include="..\Lib\Include\Json.h" />
+    <ClInclude Include="..\Lib\Include\LinkedList.h" />
     <ClInclude Include="..\Lib\Include\MemPool.h" />
     <ClInclude Include="..\Lib\Include\Shm.h" />
     <ClInclude Include="..\Lib\Include\Str.h" />
@@ -29,6 +30,7 @@
     <ClCompile Include="..\Control\Src\main.cpp" />
     <ClCompile Include="..\Control\Src\Test.cpp" />
     <ClCompile Include="..\Control\Src\Thread.cpp" />
+    <ClCompile Include="..\Control\Src\XmlTest.cpp" />
     <ClCompile Include="..\Lib\Src\Ini.cpp" />
     <ClCompile Include="..\Lib\Src\Json.cpp" />
     <ClCompile Include="..\Lib\Src\Shm.cpp" />
