@@ -185,6 +185,7 @@ public:
 
 	void DelAttrs();
 	void DelVals();
+	void DelObjVal(int);
 
 	char* getName();
 	void setName(char*);
@@ -245,25 +246,20 @@ public:
 
 class XmlObjOper : public AssignObjOper, public AssignAttrOper{
 	XmlObj* ObjRoot;
+	bool isNewSlot;	//삽입시
 protected:
 	XmlObj* GetTarget();
 public:
-	XmlObjOper(XmlObj* ObjRoot);
+	XmlObjOper(XmlObj* ObjRoot, bool NewSlot = false);
 
 	using AssignObjOper::operator=;
 	using AssignObjOper::operator<<;
 
 	// XmlObjOper&끼리의 대입도 각자 GetTarget()으로 진짜 대상을 구해서 위임한다.
 	// (explicit 변환연산자를 우회하지 않는 이식성 있는 방식)
-	void operator=(const XmlObjOper& rhs){
-		XmlObj* lVal = GetTarget();
-		//XmlObj* rVal = rhs.GetTarget();
-		XmlObj* rVal = const_cast<XmlObjOper&>(rhs).GetTarget();
-		if (lVal == rVal) return;
-		lVal->DelVals();
-		lVal->DelAttrs();
-		DepCpy(lVal, rVal);
-	}
+	void operator=(const XmlObjOper& rhs);
+	void operator<<(XmlObj*);
+	void operator<<(XmlObj&);
 
 	XmlObjOper Insert(int idx);
 

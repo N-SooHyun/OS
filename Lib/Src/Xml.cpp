@@ -172,6 +172,9 @@ void XmlObj::DelVals(){
 	XmlVal* NullVal = new XmlValue("");
 	Vals.setNode(NullVal);
 }
+void XmlObj::DelObjVal(int idx){
+	Vals.DelList(idx);
+}
 
 char* XmlObj::getName(){
 	return Name.getName();
@@ -332,6 +335,24 @@ XmlObjOper XmlObj::operator()(char* ObjName){
 	return ObjOper;
 }
 
+XmlObjOper XmlObj::Insert(int idx){		//0 이 가장 맨앞으로 할것 LinkedList는 1이 가장 맨앞이지만 API는 0으로 시작한게 많으니..
+	LinkedList<XmlVal> *pNode = &this->Vals;
+	int NodeIndex = pNode->Index;
+
+	//idx값이 터무니없이 크다던가 혹은 -1이라던가 하면 그냥 맨끝에 붙이는걸로 합의
+	if (NodeIndex <= -1 || NodeIndex < idx){
+		XmlObj* obj = this->SearchObjAttr<XmlObj*>(idx, TYPE::OBJ);
+		XmlObjOper ObjOper(obj);	//어차피 이게 마지막 그거임
+		return ObjOper;
+	}
+	else{
+		XmlVal* InsertVal = new XmlObj("__placeholder__");
+		pNode->AddList(InsertVal, idx+1);
+		XmlObj* obj = static_cast<XmlObj*>(this->Vals.getHead()->getData());
+		XmlObjOper ObjOper(obj, true);
+		return ObjOper;
+	}
+}
 
 /* ================================================
 * AssignObjOper - 노드 대입/추가(<<, =) 담당
@@ -387,6 +408,7 @@ void AssignObjOper::operator<<(DynamicStr* rVal) {
 
 void AssignObjOper::operator<<(XmlObj* rVal) {
 	XmlObj* RootObj = GetTarget();
+	if (RootObj == nullptr){ return; }
 	RootObj->addObj("");
 	XmlObj* addLVal = RootObj->getObj();	// 가장 마지막 객체 가져오기
 
@@ -395,6 +417,7 @@ void AssignObjOper::operator<<(XmlObj* rVal) {
 
 void AssignObjOper::operator<<(XmlObj& rVal) {
 	XmlObj* RootObj = GetTarget();
+	if (RootObj == nullptr){ return; }
 	RootObj->addObj("");
 	XmlObj* addLVal = RootObj->getObj();	// 가장 마지막 객체 가져오기
 
@@ -475,10 +498,39 @@ XmlAttrOper AssignAttrOper::operator[](char* AttrName){
 /* ================================================
 * XmlObjOper - 다른 XmlObj를 가리키는 대리 객체
 ==================================================*/
-XmlObjOper::XmlObjOper(XmlObj* ObjRoot) : ObjRoot(ObjRoot){}
+XmlObjOper::XmlObjOper(XmlObj* ObjRoot, bool NewSlot) : ObjRoot(ObjRoot), isNewSlot(NewSlot){}
 
 XmlObj* XmlObjOper::GetTarget(){
 	return ObjRoot;
+}
+
+void XmlObjOper::operator=(const XmlObjOper& rhs){
+	XmlObj* lVal = GetTarget();
+	//XmlObj* rVal = rhs.GetTarget();
+	XmlObj* rVal = const_cast<XmlObjOper&>(rhs).GetTarget();
+	if (lVal == rVal) return;
+	lVal->DelVals();
+	lVal->DelAttrs();
+	DepCpy(lVal, rVal);
+}
+
+void XmlObjOper::operator<<(XmlObj* rVal){
+	if (this->isNewSlot){
+		AssignObjOper::operator=(rVal);
+		isNewSlot = false;
+	}
+	else{
+		AssignObjOper::operator<<(rVal);
+	}
+}
+void XmlObjOper::operator<<(XmlObj& rVal){
+	if (this->isNewSlot){
+		AssignObjOper::operator=(rVal);
+		isNewSlot = false;
+	}
+	else{
+		AssignObjOper::operator<<(rVal);
+	}
 }
 
 // 변환 연산자 - 아직 stub 상태
