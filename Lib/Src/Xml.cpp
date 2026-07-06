@@ -172,8 +172,21 @@ void XmlObj::DelVals(){
 	XmlVal* NullVal = new XmlValue("");
 	Vals.setNode(NullVal);
 }
-void XmlObj::DelObjVal(int idx){
-	Vals.DelList(idx);
+void XmlObj::DelObjVal(int idx){	//0이 가장 앞임
+	if (idx == -1 || idx > Vals.Index){
+		Vals.DelList(Vals.Index+1);
+	}
+	else{
+		Vals.DelList(idx+1);
+	}
+}
+void XmlObj::DelAttrVal(int idx){
+	if (idx == -1 || idx > Vals.Index){
+		Attrs.DelList(Attrs.Index+1);
+	}
+	else{
+		Attrs.DelList(idx+1);
+	}
 }
 
 char* XmlObj::getName(){
@@ -331,6 +344,11 @@ XmlObjOper XmlObj::operator()(int idx){
 // 자식 객체를 이름으로 찾는 연산
 XmlObjOper XmlObj::operator()(char* ObjName){
 	XmlObj* obj = this->SearchObjAttr<XmlObj*>(ObjName, TYPE::OBJ);
+	if (obj == nullptr){
+		XmlObj* root = GetTarget();
+		root->addObj(ObjName);
+		obj = root->getObj(ObjName);
+	}
 	XmlObjOper ObjOper(obj);
 	return ObjOper;
 }
@@ -533,19 +551,19 @@ void XmlObjOper::operator<<(XmlObj& rVal){
 	}
 }
 
-// 변환 연산자 - 아직 stub 상태
+// 반환 연산자 - 아직 stub 상태
 XmlObjOper::operator char*(){
-	return "T";
-}
-XmlObjOper::operator DynamicStr*(){
-	return nullptr;
+	XmlObj* ObjRoot = this->ObjRoot;
+	if (ObjRoot == nullptr) return nullptr;
+	if (ObjRoot->isVal()){
+		return ObjRoot->getVal()->c_toString();
+	}
+	else{
+		return nullptr;
+	}
 }
 XmlObjOper::operator XmlObj*(){
-	return nullptr;
-}
-XmlObjOper::operator XmlObj(){
-	XmlObj T("T");
-	return T;
+	return this->ObjRoot;
 }
 
 void XmlObjOper::SetObjRoot(XmlObj* xmlobj){}
@@ -567,8 +585,7 @@ void XmlAttrOper::operator=(DynamicStr* rStrVal){
 
 // 변환 연산자 - 아직 stub 상태
 XmlAttrOper::operator char*(){
-	return "T";
-}
-XmlAttrOper::operator DynamicStr*(){
-	return nullptr;
+	if (this->AttrRoot == nullptr) return nullptr;
+	XmlAttrObj* AttrRoot = this->AttrRoot;
+	return AttrRoot->getValue();
 }

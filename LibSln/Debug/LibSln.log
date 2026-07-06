@@ -1,23 +1,10 @@
-﻿빌드 시작: 2026-07-04 오후 2:03:30
-     1>2 노드의 "C:\Users\NSH\Documents\VS_All\LibSln\LibSln\LibSln.vcxproj" 프로젝트(Rebuild 대상)입니다.
+﻿빌드 시작: 2026-07-06 오후 10:34:52
+     1>2 노드의 "C:\Users\NSH\Documents\VS_All\LibSln\LibSln\LibSln.vcxproj" 프로젝트(Build 대상)입니다.
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Control\Src\GUI.cpp ..\Control\Src\main.cpp ..\Control\Src\Test.cpp ..\Control\Src\Thread.cpp ..\Control\Src\XmlTest.cpp ..\Lib\Src\Ini.cpp ..\Lib\Src\Json.cpp ..\Lib\Src\Shm.cpp ..\Lib\Src\Xml.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Lib\Src\Xml.cpp
          Xml.cpp
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(236): warning C4522: 'XmlObj' : 할당 연산자를 여러 개 지정했습니다.
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(273): warning C4522: 'XmlObjOper' : 할당 연산자를 여러 개 지정했습니다.
-         Shm.cpp
-         Json.cpp
-         Ini.cpp
-         XmlTest.cpp
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(236): warning C4522: 'XmlObj' : 할당 연산자를 여러 개 지정했습니다.
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(273): warning C4522: 'XmlObjOper' : 할당 연산자를 여러 개 지정했습니다.
-         Thread.cpp
-         Test.cpp
-         main.cpp
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(236): warning C4522: 'XmlObj' : 할당 연산자를 여러 개 지정했습니다.
-     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(273): warning C4522: 'XmlObjOper' : 할당 연산자를 여러 개 지정했습니다.
-         GUI.cpp
-         코드를 생성하고 있습니다...
+     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(237): warning C4522: 'XmlObj' : 할당 연산자를 여러 개 지정했습니다.
+     1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(272): warning C4522: 'XmlObjOper' : 할당 연산자를 여러 개 지정했습니다.
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\NSH\Documents\VS_All\LibSln\Debug\LibSln.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\NSH\Documents\VS_All\LibSln\Debug\LibSln.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\NSH\Documents\VS_All\LibSln\Debug\LibSln.lib" /MACHINE:X86 Debug\GUI.obj
          Debug\main.obj
@@ -29,8 +16,8 @@
          Debug\Shm.obj
          Debug\Xml.obj
          LibSln.vcxproj -> C:\Users\NSH\Documents\VS_All\LibSln\Debug\LibSln.exe
-     1>"C:\Users\NSH\Documents\VS_All\LibSln\LibSln\LibSln.vcxproj" 프로젝트를 빌드했습니다(Rebuild 대상).
+     1>"C:\Users\NSH\Documents\VS_All\LibSln\LibSln\LibSln.vcxproj" 프로젝트를 빌드했습니다(Build 대상).
 
 빌드했습니다.
 
-경과 시간: 00:00:03.73
+경과 시간: 00:00:00.62

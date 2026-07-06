@@ -185,7 +185,8 @@ public:
 
 	void DelAttrs();
 	void DelVals();
-	void DelObjVal(int);
+	void DelObjVal(int = -1);
+	void DelAttrVal(int = -1);
 
 	char* getName();
 	void setName(char*);
@@ -265,9 +266,7 @@ public:
 
 	// 변환 연산자 - 아직 stub 상태, 실제 구현 채워야 함
 	explicit operator char*();
-	explicit operator DynamicStr*();
 	explicit operator XmlObj*();
-	explicit operator XmlObj();
 
 	void SetObjRoot(XmlObj*);
 };
@@ -282,5 +281,4 @@ public:
 
 	// 변환 연산자 - 아직 stub 상태, 실제 구현 채워야 함
 	operator char*();
-	operator DynamicStr*();
 };
