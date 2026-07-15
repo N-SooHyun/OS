@@ -1,8 +1,8 @@
-﻿빌드 시작: 2026-07-06 오후 10:34:52
+﻿빌드 시작: 2026-07-07 오후 9:10:25
      1>2 노드의 "C:\Users\NSH\Documents\VS_All\LibSln\LibSln\LibSln.vcxproj" 프로젝트(Build 대상)입니다.
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Lib\Src\Xml.cpp
-         Xml.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Control\Src\XmlTest.cpp
+         XmlTest.cpp
      1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(237): warning C4522: 'XmlObj' : 할당 연산자를 여러 개 지정했습니다.
      1>c:\users\nsh\documents\vs_all\libsln\lib\include\xml.h(272): warning C4522: 'XmlObjOper' : 할당 연산자를 여러 개 지정했습니다.
        Link:
@@ -20,4 +20,4 @@
 
 빌드했습니다.
 
-경과 시간: 00:00:00.62
+경과 시간: 00:00:00.59

@@ -37,6 +37,12 @@ void XmlTest(){
 
 	printf("%s\n", lVal);
 
+	root = "Test";
+
+	
+
+	XmlPrint(&root);
+
 	//char* RtChild3 = root("RtChild3");
 }
 
@@ -100,6 +106,6 @@ void XmlConvertOperTest(){
 
 
 void XmlTestFunc(){
-	//XmlTest();
-	XmlConvertOperTest();
+	XmlTest();
+	//XmlConvertOperTest();
 }

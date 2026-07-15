@@ -329,6 +329,12 @@ XmlAttrObj* XmlObj::getAttr(char* name){
 	}
 	return nullptr; // Search Failed
 }
+void XmlObj::setParser(char* rXmlVal){
+
+}
+void XmlObj::setParser(DynamicStr* rXmlVal){
+
+}
 
 XmlObj* XmlObj::GetTarget(){
 	return this;

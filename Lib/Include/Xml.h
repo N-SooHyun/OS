@@ -214,6 +214,10 @@ public:
 	XmlAttrObj* getAttr(int idx = -1);	// idx 생략 시 마지막 속성, 범위초과면 nullptr
 	XmlAttrObj* getAttr(char*);
 
+	void setParser(char*);
+	void setParser(DynamicStr*);
+
+
 	// 자식 인덱싱 연산자 - 반환된 XmlObjOper를 통해 대입/체이닝/속성접근이 이어짐
 	XmlObjOper operator()(int = -1);
 	XmlObjOper operator()(char*);
@@ -232,8 +236,8 @@ public:
 		lVal->DelAttrs();
 		DepCpy(lVal, rVal);
 	}
-
 	XmlObjOper Insert(int idx);
+
 };
 
 
