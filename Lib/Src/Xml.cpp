@@ -329,12 +329,6 @@ XmlAttrObj* XmlObj::getAttr(char* name){
 	}
 	return nullptr; // Search Failed
 }
-void XmlObj::setParser(char* rXmlVal){
-
-}
-void XmlObj::setParser(DynamicStr* rXmlVal){
-
-}
 
 XmlObj* XmlObj::GetTarget(){
 	return this;
@@ -422,12 +416,24 @@ bool AssignObjOper::ValSet(DynamicStr* rVal) {
 	return false;   // Value가 아님, Obj임
 }
 void AssignObjOper::operator<<(char* rVal) {
-	if (ValSet(rVal)) return;
-	GetTarget()->addObj(rVal);
+	XmlObj* rValXml = XmlParser::Parse(rVal);
+	if (rValXml == nullptr){
+		if (ValSet(rVal)) return;
+		GetTarget()->addObj(rVal);
+	}
+	else{
+		this->operator<<(rValXml);
+	}
 }
 void AssignObjOper::operator<<(DynamicStr* rVal) {
-	if (ValSet(rVal)) return;
-	GetTarget()->addObj(rVal);
+	XmlObj* rValXml = XmlParser::Parse(rVal);
+	if (rValXml == nullptr){
+		if (ValSet(rVal)) return;
+		GetTarget()->addObj(rVal);
+	}
+	else{
+		this->operator<<(rValXml);
+	}
 }
 
 void AssignObjOper::operator<<(XmlObj* rVal) {
@@ -449,13 +455,25 @@ void AssignObjOper::operator<<(XmlObj& rVal) {
 }
 
 void AssignObjOper::operator=(char* rVal) {
-	if (ValSet(rVal)) return;
-	GetTarget()->setObj(rVal);
+	XmlObj* rValXml = XmlParser::Parse(rVal);
+	if (rValXml == nullptr){
+		if (ValSet(rVal)) return;
+		GetTarget()->setObj(rVal);
+	}
+	else{
+		this->operator=(rValXml);
+	}
 }
 
 void AssignObjOper::operator=(DynamicStr* rVal) {
-	if (ValSet(rVal)) return;
-	GetTarget()->setObj(rVal);
+	XmlObj* rValXml = XmlParser::Parse(rVal);
+	if (rValXml == nullptr){
+		if (ValSet(rVal)) return;
+		GetTarget()->setObj(rVal);
+	}
+	else{
+		this->operator=(rValXml);
+	}
 }
 
 void AssignObjOper::operator=(XmlObj* rVal) {
@@ -595,3 +613,19 @@ XmlAttrOper::operator char*(){
 	XmlAttrObj* AttrRoot = this->AttrRoot;
 	return AttrRoot->getValue();
 }
+
+/* ================================================
+* XmlParser - 파싱을 진행해주는 정적 함수 전용 클래스
+==================================================*/
+XmlObj* XmlParser::RealParser(char* rVal){
+	return nullptr;
+}
+XmlObj* XmlParser::Parse(char* rVal){	//Static 메소드
+	XmlParser Parser;
+	return Parser.RealParser(rVal);
+}
+XmlObj* XmlParser::Parse(DynamicStr* rVal){	//Static 메소드
+	XmlParser Parser;
+	return Parser.RealParser(rVal->Get_Str());
+}
+

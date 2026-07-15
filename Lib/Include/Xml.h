@@ -86,6 +86,14 @@ public:
 * 이 두 믹스인은 몰라도 되고, 각 자식이 GetTarget()으로만 알려주면 된다.
 ===================================================================================*/
 
+class XmlParser{
+	XmlObj* RealParser(char*);
+public:
+	XmlParser() = default;
+	static XmlObj* Parse(char*);
+	static XmlObj* Parse(DynamicStr*);
+};
+
 class TargetProvider{
 protected:
 	virtual XmlObj* GetTarget() = 0;
@@ -213,9 +221,6 @@ public:
 	XmlObj* getObj(char*);
 	XmlAttrObj* getAttr(int idx = -1);	// idx 생략 시 마지막 속성, 범위초과면 nullptr
 	XmlAttrObj* getAttr(char*);
-
-	void setParser(char*);
-	void setParser(DynamicStr*);
 
 
 	// 자식 인덱싱 연산자 - 반환된 XmlObjOper를 통해 대입/체이닝/속성접근이 이어짐
