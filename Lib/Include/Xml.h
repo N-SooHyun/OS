@@ -76,6 +76,33 @@ public:
 	~XmlValue() = default;
 };
 
+//나중에 범용 Xml을 하기를 원한다면 사용하도록 남겨두기(현재는 사용 안함) TBD
+//PI <?xml-stylesheet 
+class XmlPI : public XmlVal{
+public:
+	virtual char* c_toString() override;
+	virtual DynamicStr* d_toString() override;
+	XmlStr Target;
+	XmlStr Data;
+	XmlPI(char* target, char* data);
+};
+
+// <!-- --> 주석
+class XmlComment : public XmlVal{
+public:
+	virtual char* c_toString() override;
+	virtual DynamicStr* d_toString() override;
+	XmlStr Val;
+	XmlComment(char*);
+	XmlComment(DynamicStr*);
+};
+
+// <!DOCTYPE 
+class XmlDocType : public XmlVal{
+
+};
+
+
 
 /* =================================================================================
 * 대입 연산자 믹스인 계층
@@ -85,6 +112,16 @@ public:
 * 실제 조작 대상이 자기 자신(XmlObj)인지, 다른 곳을 가리키는 대리자(XmlObjOper)인지는
 * 이 두 믹스인은 몰라도 되고, 각 자식이 GetTarget()으로만 알려주면 된다.
 ===================================================================================*/
+
+class XmlParser{
+	XmlObj* CurXmlObjParse(char* rVal, int& Csr);
+
+	XmlObj* RealParser(char*);
+public:
+	XmlParser() = default;
+	static XmlObj* Parse(char*);
+	static XmlObj* Parse(DynamicStr*);
+};
 
 class TargetProvider{
 protected:
@@ -213,9 +250,6 @@ public:
 	XmlObj* getObj(char*);
 	XmlAttrObj* getAttr(int idx = -1);	// idx 생략 시 마지막 속성, 범위초과면 nullptr
 	XmlAttrObj* getAttr(char*);
-
-	void setParser(char*);
-	void setParser(DynamicStr*);
 
 
 	// 자식 인덱싱 연산자 - 반환된 XmlObjOper를 통해 대입/체이닝/속성접근이 이어짐
