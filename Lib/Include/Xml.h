@@ -114,7 +114,18 @@ class XmlDocType : public XmlVal{
 ===================================================================================*/
 
 class XmlParser{
-	XmlObj* CurXmlObjParse(char* rVal, int& Csr);
+	typedef struct{
+		char PrvWord = 0;
+		char CurWord = 0;
+		char NxtWord = 0;
+		XmlObj* CurXmlObj = nullptr;
+		int Stack = 0;
+		DynamicStr* ObjName = nullptr;
+		DynamicStr* Value = nullptr;
+		DynamicStr* AttrName = nullptr;
+		DynamicStr* AttrValue = nullptr;
+	}_PrsTol;
+	XmlObj* CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol);
 
 	XmlObj* RealParser(char*);
 public:
@@ -147,8 +158,8 @@ public:
 	void operator<<(XmlObj*);				// Obj Add (Deep Copy)
 	void operator<<(XmlObj&);				// Obj Add (Deep Copy)
 
-	void operator=(char*);					// Value Set or Obj Set
-	void operator=(DynamicStr*);			// Value Set or Obj Set
+	void operator=(char*);					// Only Value Set
+	void operator=(DynamicStr*);			// Only Value Set
 	void operator=(XmlObj*);				// Obj Set (Deep Copy)
 	void operator=(XmlObj&);				// Obj Set (Deep Copy)
 

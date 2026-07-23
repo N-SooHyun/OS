@@ -1,6 +1,7 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include "../../Lib/Include/Xml.h"
+#include "../../Lib/Include/File.h"
 
 /* ================================================
 * Xml 라이브러리 테스트/데모 코드
@@ -38,8 +39,6 @@ void XmlTest(){
 	printf("%s\n", lVal);
 
 	root = "Test";
-
-	
 
 	XmlPrint(&root);
 
@@ -104,8 +103,20 @@ void XmlConvertOperTest(){
 	XmlPrint(&root);
 }
 
+void XmlParserTest(){
+	FILE* pFile = FileFunc::RdFile("./Test/XmlTest.xml");
+	DynamicStr RdStr(64);
+	FileFunc::FileToStr(pFile, RdStr);
+
+	printf("%s\n", RdStr.Get_uStr());
+
+	printf("파서 시작\n");
+	XmlObj root(&RdStr);
+}
+
 
 void XmlTestFunc(){
 	XmlTest();
 	//XmlConvertOperTest();
+	//XmlParserTest();
 }

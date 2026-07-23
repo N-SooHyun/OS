@@ -117,10 +117,24 @@ void XmlAttrObj::setValue(DynamicStr* rVal){
 * XmlObj
 ==================================================*/
 XmlObj::XmlObj(DynamicStr *Name) : Name(Name, 128){
-	InitValSet();
+	XmlObj* Obj = XmlParser::Parse(Name);
+	if (Obj == nullptr){
+		InitValSet();
+	}
+	else{
+		DepCpy(this, Obj);
+		delete Obj;
+	}
 }
 XmlObj::XmlObj(char *Name) : Name(Name, 128){
-	InitValSet();
+	XmlObj* Obj = XmlParser::Parse(Name);
+	if (Obj == nullptr){
+		InitValSet();
+	}
+	else{
+		DepCpy(this, Obj);
+		delete Obj;
+	}
 }
 
 char* XmlObj::c_toString() {
@@ -457,8 +471,9 @@ void AssignObjOper::operator<<(XmlObj& rVal) {
 void AssignObjOper::operator=(char* rVal) {
 	XmlObj* rValXml = XmlParser::Parse(rVal);
 	if (rValXml == nullptr){
-		if (ValSet(rVal)) return;
-		GetTarget()->setObj(rVal);
+		//if (ValSet(rVal)) return;
+		GetTarget()->setVal(rVal);
+		//GetTarget()->setObj(rVal);
 	}
 	else{
 		this->operator=(rValXml);
@@ -468,7 +483,7 @@ void AssignObjOper::operator=(char* rVal) {
 void AssignObjOper::operator=(DynamicStr* rVal) {
 	XmlObj* rValXml = XmlParser::Parse(rVal);
 	if (rValXml == nullptr){
-		if (ValSet(rVal)) return;
+		//if (ValSet(rVal)) return;
 		GetTarget()->setObj(rVal);
 	}
 	else{
@@ -617,47 +632,61 @@ XmlAttrOper::operator char*(){
 /* ================================================
 * XmlParser - 파싱을 진행해주는 정적 함수 전용 클래스
 ==================================================*/
-XmlObj* CurXmlObjParse(char* rVal, int& Csr){
-	char PrvWord;
-	char CurWord;
-	char NxtWord;
+XmlObj* XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 	Csr++;
 	auto* ObjName = new DynamicStr(64);
 	for (; rVal[Csr] != '>'; Csr++){
-		PrvWord = rVal[Csr - 1];
-		CurWord = rVal[Csr];
-		NxtWord = rVal[Csr + 1];
-
-		//특수 선언 부 CDATA와 주석
-		if (CurWord == '!'){
+		PrsTol.PrvWord = rVal[Csr - 1];
+		PrsTol.CurWord = rVal[Csr];
+		PrsTol.NxtWord = rVal[Csr + 1];
 			
+		if (PrsTol.CurWord == '/'){ //넘기기
+			PrsTol.Stack--;
+			for (;rVal[Csr] != '>'; Csr++){
+
+			}
+		}
+		//특수 선언 부 CDATA와 주석
+		else if (PrsTol.CurWord == '!'){
+			PrsTol.Stack++;
+
+		}
+		else{	//그냥 파싱 진행하면 됨
+			PrsTol.Stack++;
+
 		}
 	}
+	return nullptr;
 }
 
 XmlObj* XmlParser::RealParser(char* rVal){
 	//실제 파싱을 해주는 파서부
-	char PrvWord;
-	char CurWord;
-	char NxtWord;
-
+	_PrsTol PrsTol{};
+	PrsTol.Stack++;	//Root Stack +1
 	for (int Csr = 0; rVal[Csr] != '\0'; Csr++){
-		PrvWord = rVal[Csr - 1];
-		CurWord = rVal[Csr];
-		NxtWord = rVal[Csr + 1];
+		PrsTol.PrvWord = rVal[Csr - 1];
+		PrsTol.CurWord = rVal[Csr];
+		PrsTol.NxtWord = rVal[Csr + 1];
 
-		if (NxtWord == '<'){	//Obj Mode
-			XmlObj* CurXmlObj = CurXmlObjParse(rVal, Csr);
+		if (Csr == 0 && PrsTol.CurWord != '<') break;
+
+		if (PrsTol.CurWord == '<'){	//Obj Mode
+			PrsTol.CurXmlObj = CurXmlObjParse(rVal, Csr, PrsTol);
 		}
 		else{	//Value
-
+			if (PrsTol.Value != nullptr){
+				if (PrsTol.NxtWord == '<'){	//현재 커서가 Value의 끝을 의미
+					PrsTol.CurXmlObj->operator=(PrsTol.Value);
+					
+				}
+			}
+			else{
+				PrsTol.Value = new DynamicStr(32);
+			}
 		}
 
 
 	}
-
-
-
 	return nullptr;
 }
 

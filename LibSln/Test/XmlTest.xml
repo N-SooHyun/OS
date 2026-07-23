@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+    <name>John Smith</name>
+    <age>28</age>
+    <email>john.smith@example.com</email>
+    <address>
+        <city>Seoul</city>
+        <zipcode>06236</zipcode>
+    </address>
+    <hobbies>
+        <hobby>Reading</hobby>
+        <hobby>Hiking</hobby>
+    </hobbies>
+</person>
