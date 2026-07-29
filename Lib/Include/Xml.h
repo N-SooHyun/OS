@@ -76,6 +76,18 @@ public:
 	~XmlValue() = default;
 };
 
+class XmlNull : public XmlVal{
+public:
+	virtual char* c_toString() override { return nullptr; }
+	virtual DynamicStr* d_toString() override { return nullptr; }
+};
+
+enum class XmlContentType : unsigned char{
+	NUL = 0,
+	VAL,
+	OBJ,
+};
+
 //나중에 범용 Xml을 하기를 원한다면 사용하도록 남겨두기(현재는 사용 안함) TBD
 //PI <?xml-stylesheet 
 class XmlPI : public XmlVal{
@@ -125,6 +137,10 @@ class XmlParser{
 		DynamicStr* AttrName = nullptr;
 		DynamicStr* AttrValue = nullptr;
 	}_PrsTol;
+
+	void ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol);
+	void ValMake(char* rVal, int& Csr, _PrsTol& PrsTol);
+
 	XmlObj* CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol);
 
 	XmlObj* RealParser(char*);
@@ -227,8 +243,8 @@ public:
 	virtual char* c_toString() override;
 	virtual DynamicStr* d_toString() override;
 
-	XmlObj(DynamicStr* Name);
-	XmlObj(char* Name);
+	XmlObj(DynamicStr* Name, bool isNotNull = true);
+	XmlObj(char* Name, bool isNotNull = true);
 	~XmlObj() = default;
 
 	void DelAttrs();
@@ -242,7 +258,10 @@ public:
 	int getObjIdx();	// 자식이 있으면 마지막 인덱스, 값(Value) 노드면 -1
 	int getAttrsIdx();	// 속성 없으면 -1, 있으면 0부터
 
+	XmlContentType getContentType();
+	bool isObj();
 	bool isVal();
+	bool isNul();
 
 	void setVal(DynamicStr*);
 	void setVal(char*);

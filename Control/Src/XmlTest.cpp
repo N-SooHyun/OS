@@ -24,12 +24,12 @@ void XmlTest(){
 	XmlObj rVal("rVal");
 	rVal.addObj("rValChild1");
 
-	XmlPrint(&root);
+	//XmlPrint(&root);
 	root("RtChild3") = "Value";
 	root("RtChild4") = "Value";
 	root("RtChild5") = "Value";
 	root("RtChild6") << "Value";
-	XmlPrint(&root);
+	//XmlPrint(&root);
 
 	char* lVal = (char*)root("RtChild3");
 	XmlObj* plVal = (XmlObj*)root("RtChild5");
@@ -40,7 +40,11 @@ void XmlTest(){
 
 	root = "Test";
 
-	XmlPrint(&root);
+	//XmlPrint(&root);
+
+	XmlObj NullRoot("NullObj", NULL);
+
+	XmlPrint(&NullRoot);
 
 	//char* RtChild3 = root("RtChild3");
 }

@@ -22,15 +22,21 @@ static void XmlValuePrint(XmlObj* Obj, int floor){
 	}
 	printf("<%s", Obj->getName());
 	XmlAttrPrint(Obj);
-	printf(">\n");
-	for (int i = 0; i <= floor; i++){
-		printf("\t");
+
+	if (Obj->isNul()){
+		printf("/>\n");
 	}
-	printf("%s\n", Obj->getVal()->Val.getName());
-	for (int i = 0; i < floor; i++){
-		printf("\t");
+	else{
+		printf(">\n");
+		for (int i = 0; i <= floor; i++){
+			printf("\t");
+		}
+		printf("%s\n", Obj->getVal()->Val.getName());
+		for (int i = 0; i < floor; i++){
+			printf("\t");
+		}
+		printf("</%s>\n", Obj->getName());
 	}
-	printf("</%s>\n", Obj->getName());
 }
 
 static void XmlObjPrint(XmlObj* Obj, int floor){
@@ -49,8 +55,11 @@ static void XmlObjPrint(XmlObj* Obj, int floor){
 		if (pObj->isVal()){
 			XmlValuePrint(pObj, floor + 1);
 		}
-		else{
+		else if(pObj->isObj()){
 			XmlObjPrint(pObj, floor + 1);
+		}
+		else if(pObj->isNul()){
+			XmlValuePrint(pObj, floor + 1);
 		}
 	}
 
@@ -67,8 +76,11 @@ void XmlPrint(XmlObj* Root){
 	if (Obj->isVal()){
 		XmlValuePrint(Obj, 0);
 	}
-	else{
+	else if(Obj->isObj()){
 		XmlObjPrint(Obj, 0);
+	}
+	else if(Obj->isNul()){
+		XmlValuePrint(Obj, 0);
 	}
 }
 
@@ -116,26 +128,27 @@ void XmlAttrObj::setValue(DynamicStr* rVal){
 /* ================================================
 * XmlObj
 ==================================================*/
-XmlObj::XmlObj(DynamicStr *Name) : Name(Name, 128){
+XmlObj::XmlObj(DynamicStr *Name, bool isNotNull) : Name(Name, 128){
 	XmlObj* Obj = XmlParser::Parse(Name);
-	if (Obj == nullptr){
+	if (Obj == nullptr && isNotNull){
 		InitValSet();
 	}
-	else{
+	else if (Obj != nullptr){
 		DepCpy(this, Obj);
 		delete Obj;
 	}
 }
-XmlObj::XmlObj(char *Name) : Name(Name, 128){
+XmlObj::XmlObj(char *Name, bool isNotNull) : Name(Name, 128){
 	XmlObj* Obj = XmlParser::Parse(Name);
-	if (Obj == nullptr){
+	if (Obj == nullptr && isNotNull){
 		InitValSet();
 	}
-	else{
+	else if (Obj != nullptr){
 		DepCpy(this, Obj);
 		delete Obj;
 	}
 }
+
 
 char* XmlObj::c_toString() {
 	auto* toStr = new DynamicStr(128);
@@ -171,13 +184,31 @@ void XmlObj::InitValSet(){
 	XmlVal* InitVal = new XmlValue("");
 	Vals.AddList(InitVal);
 }
-bool XmlObj::isVal(){
-	XmlVal* v = Vals.getHead()->getData();
 
-	if (dynamic_cast<XmlValue*>(v)){
-		return true;
-	}
-	return false;
+XmlContentType XmlObj::getContentType(){
+	Node<XmlVal>* head = Vals.getHead();
+	if (head == nullptr) return XmlContentType::NUL;
+
+	XmlVal* v = head->getData();
+
+	if (dynamic_cast<XmlNull*>(v)) return XmlContentType::NUL;
+	if (dynamic_cast<XmlValue*>(v)) return XmlContentType::VAL;
+	return XmlContentType::OBJ;   // 그 외엔 XmlObj 자식들
+}
+
+bool XmlObj::isObj(){
+	if (getContentType() == XmlContentType::OBJ) return true;
+	else return false;
+}
+
+bool XmlObj::isVal(){
+	if (getContentType() == XmlContentType::VAL) return true;
+	else return false;
+}
+
+bool XmlObj::isNul(){
+	if (getContentType() == XmlContentType::NUL) return true;
+	else return false;
 }
 
 void XmlObj::DelAttrs(){ Attrs.AllDelList(); }
@@ -213,7 +244,7 @@ void XmlObj::setName(DynamicStr* Name){
 	this->Name.SetName(Name);
 }
 int XmlObj::getObjIdx(){
-	if (isVal()) return -1;
+	if (isVal() || isNul()) return -1;
 	return Vals.Index;
 }
 int XmlObj::getAttrsIdx(){
@@ -238,19 +269,19 @@ void XmlObj::setObj(char* newObj){
 }
 void XmlObj::addObj(DynamicStr* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
-	if (isVal()){
+	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
 	}
-	else{
+	else if(isObj()){
 		Vals.AddList(pnewObj);
 	}
 }
 void XmlObj::addObj(char* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
-	if (isVal()){
+	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
 	}
-	else{
+	else if(isObj()){
 		Vals.AddList(pnewObj);
 	}
 }
@@ -273,14 +304,14 @@ void XmlObj::addAttr(char* AttrsName, char* AttrsValue){
 }
 
 XmlValue* XmlObj::getVal(){
-	if (isVal() == false){
+	if (isObj()){
 		// Obj가 들어있는데 Val을 꺼내려고 해서 실패하는 경우
 		return nullptr;
 	}
 	return dynamic_cast<XmlValue*>(Vals.getHead()->getData());
 }
 XmlObj* XmlObj::getObj(int idx){
-	if (isVal()){
+	if (isVal() || isNul()){
 		// Value면 Obj가 아니기 때문에 실패
 		return nullptr;
 	}
@@ -297,7 +328,7 @@ XmlObj* XmlObj::getObj(int idx){
 	return dynamic_cast<XmlObj*>(data);
 }
 XmlObj* XmlObj::getObj(char* name){
-	if (isVal()){
+	if (isVal() || isNul()){
 		return nullptr;
 	}
 	Node<XmlVal>* pNode = nullptr;
@@ -415,7 +446,7 @@ void AssignObjOper::DepCpy(XmlObj* lVal, XmlObj* rVal) {
 }
 bool AssignObjOper::ValSet(char* rVal) {
 	XmlObj* pTarget = GetTarget();
-	if (pTarget->isVal()) {
+	if (pTarget->isVal() || pTarget->isNul()) {
 		pTarget->setVal(rVal);
 		return true;
 	}
@@ -423,7 +454,7 @@ bool AssignObjOper::ValSet(char* rVal) {
 }
 bool AssignObjOper::ValSet(DynamicStr* rVal) {
 	XmlObj* pTarget = GetTarget();
-	if (pTarget->isVal()) {
+	if (pTarget->isVal() || pTarget->isNul()) {
 		pTarget->setVal(rVal);
 		return true;
 	}
@@ -632,9 +663,36 @@ XmlAttrOper::operator char*(){
 /* ================================================
 * XmlParser - 파싱을 진행해주는 정적 함수 전용 클래스
 ==================================================*/
+void XmlParser::ValMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml과 더불어 Value만 만들어준다
+	if (PrsTol.CurXmlObj == nullptr){
+		return;	//그냥 계속 반환하면서 넘기셈 의미가 없음
+	}
+
+	//여기서 부터 진정한 시작
+}
+
+void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml을 만들어준다 Value까지는 안만듬
+	//Obj만들기(ObjName), Attr만들기(AttrName, AttrValue)
+	PrsTol.Stack++;
+	for (; rVal[Csr] != '>'; Csr++){
+		PrsTol.PrvWord = rVal[Csr - 1];
+		PrsTol.CurWord = rVal[Csr];
+		PrsTol.NxtWord = rVal[Csr + 1];
+
+		//ObjName Mode 띄어쓰기 미허용
+		if (PrsTol.CurWord == ' '){
+
+		}
+
+		//Attr Mode 속성 이름과 = 사이는 공백 허용
+
+		//<XmlRoot/>  이런경우 Value는 Null값
+
+	}
+}
+
 XmlObj* XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 	Csr++;
-	auto* ObjName = new DynamicStr(64);
 	for (; rVal[Csr] != '>'; Csr++){
 		PrsTol.PrvWord = rVal[Csr - 1];
 		PrsTol.CurWord = rVal[Csr];
@@ -642,18 +700,21 @@ XmlObj* XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 			
 		if (PrsTol.CurWord == '/'){ //넘기기
 			PrsTol.Stack--;
-			for (;rVal[Csr] != '>'; Csr++){
-
-			}
+			for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return nullptr; } }
 		}
 		//특수 선언 부 CDATA와 주석
 		else if (PrsTol.CurWord == '!'){
-			PrsTol.Stack++;
-
+			if (PrsTol.NxtWord == '-' && rVal[Csr+2] == '-'){//주석
+				for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return nullptr; } }
+			}
+			ObjMake(rVal, ++Csr, PrsTol);
 		}
-		else{	//그냥 파싱 진행하면 됨
-			PrsTol.Stack++;
-
+		//처리 명령어 나중에 만들거나 자료구조 하나 만들어야함 현재는 Skip
+		else if (PrsTol.CurWord == '?'){
+			for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return nullptr; } }
+		}
+		else{	//그냥 파싱 진행하면 됨			
+			ObjMake(rVal, ++Csr, PrsTol);
 		}
 	}
 	return nullptr;
@@ -662,7 +723,6 @@ XmlObj* XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 XmlObj* XmlParser::RealParser(char* rVal){
 	//실제 파싱을 해주는 파서부
 	_PrsTol PrsTol{};
-	PrsTol.Stack++;	//Root Stack +1
 	for (int Csr = 0; rVal[Csr] != '\0'; Csr++){
 		PrsTol.PrvWord = rVal[Csr - 1];
 		PrsTol.CurWord = rVal[Csr];
@@ -674,15 +734,16 @@ XmlObj* XmlParser::RealParser(char* rVal){
 			PrsTol.CurXmlObj = CurXmlObjParse(rVal, Csr, PrsTol);
 		}
 		else{	//Value
-			if (PrsTol.Value != nullptr){
-				if (PrsTol.NxtWord == '<'){	//현재 커서가 Value의 끝을 의미
-					PrsTol.CurXmlObj->operator=(PrsTol.Value);
-					
-				}
-			}
-			else{
-				PrsTol.Value = new DynamicStr(32);
-			}
+			ValMake(rVal, Csr, PrsTol);
+			//if (PrsTol.Value != nullptr){
+			//	if (PrsTol.NxtWord == '<'){	//현재 커서가 Value의 끝을 의미
+			//		PrsTol.CurXmlObj->operator=(PrsTol.Value);
+			//		
+			//	}
+			//}
+			//else{
+			//	PrsTol.Value = new DynamicStr(32);
+			//}
 		}
 
 
