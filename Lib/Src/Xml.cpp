@@ -663,7 +663,7 @@ XmlAttrOper::operator char*(){
 /* ================================================
 * XmlParser - 파싱을 진행해주는 정적 함수 전용 클래스
 ==================================================*/
-void XmlParser::ValMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml과 더불어 Value만 만들어준다
+void XmlParser::ValMake(char* rVal, int& Csr, _PrsTol& PrsTol, bool isCdata){	//여기서 Xml과 더불어 Value만 만들어준다
 	if (PrsTol.CurXmlObj == nullptr){
 		return;	//그냥 계속 반환하면서 넘기셈 의미가 없음
 	}
@@ -674,14 +674,50 @@ void XmlParser::ValMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml과 �
 void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml을 만들어준다 Value까지는 안만듬
 	//Obj만들기(ObjName), Attr만들기(AttrName, AttrValue)
 	PrsTol.Stack++;
+	PrsTol.ObjName = new DynamicStr(16);
+	PrsTol.AttrName = new DynamicStr(16);
+	PrsTol.AttrValue = new DynamicStr(16);
+	bool ObjNameFns = false;	//공백으로 구분
+	bool AttrNameFns = false;	//=로 구분
+	bool AttrValFns = false;	//" 로 구분
 	for (; rVal[Csr] != '>'; Csr++){
 		PrsTol.PrvWord = rVal[Csr - 1];
 		PrsTol.CurWord = rVal[Csr];
 		PrsTol.NxtWord = rVal[Csr + 1];
 
 		//ObjName Mode 띄어쓰기 미허용
-		if (PrsTol.CurWord == ' '){
-
+		if (PrsTol.CurWord == ' '){	//이름이 끝났음을 의미
+			if (ObjNameFns) continue;	//이름이나 속성사이에 들어가는게 아닌이상 자유로움
+			else ObjNameFns = true;
+		}
+		else if (PrsTol.CurWord == ','){	//속성이 또 있다는 이야기
+			if (AttrNameFns && AttrValFns) AttrNameFns = false; AttrValFns = false;
+			// 예외
+		}
+		else if (PrsTol.CurWord == '='){	//속성이 끝났음을 의미
+			if (AttrNameFns == false) AttrNameFns = true;
+			// 예외
+		}
+		else if (PrsTol.CurWord == '\"'){
+			if (AttrValFns == false) AttrValFns = true;
+			// 예외
+		}
+		else if (PrsTol.CurWord == '/' && PrsTol.CurWord == '>'){
+			//Value가 Null인 Xml만들것
+		}
+		else{
+			if (ObjNameFns == false){
+				PrsTol.ObjName->Append_Char(&PrsTol.CurWord);
+			}
+			else if (AttrNameFns == false){
+				PrsTol.AttrName->Append_Char(&PrsTol.CurWord);
+			}
+			else if (AttrValFns == false){
+				PrsTol.AttrValue->Append_Char(&PrsTol.CurWord);
+			}
+			else{
+				//끝?
+			}
 		}
 
 		//Attr Mode 속성 이름과 = 사이는 공백 허용
@@ -707,7 +743,11 @@ XmlObj* XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 			if (PrsTol.NxtWord == '-' && rVal[Csr+2] == '-'){//주석
 				for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return nullptr; } }
 			}
-			ObjMake(rVal, ++Csr, PrsTol);
+			//Value가 되어야함 CDATA의 경우에는
+			//[CDATA[ 고정 리터럴
+			if (DynamicStr::StrCmp_rValSize(rVal, "[CDATA[", Csr)){
+				ValMake(rVal, ++Csr, PrsTol);
+			}
 		}
 		//처리 명령어 나중에 만들거나 자료구조 하나 만들어야함 현재는 Skip
 		else if (PrsTol.CurWord == '?'){

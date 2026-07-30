@@ -139,7 +139,7 @@ class XmlParser{
 	}_PrsTol;
 
 	void ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol);
-	void ValMake(char* rVal, int& Csr, _PrsTol& PrsTol);
+	void ValMake(char* rVal, int& Csr, _PrsTol& PrsTol, bool isCdata = false);
 
 	XmlObj* CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol);
 

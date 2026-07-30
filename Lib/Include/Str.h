@@ -143,7 +143,41 @@ namespace Dynamic {
 
 			return true;
 		}
+		static unsigned int StrLen(const char* str){
+			int i = 0;
+			while (str[i++] != '\0');
+			return i-1;
+		}
 
+		static bool StrCmp_rValSize(const char* lVal, const char* rVal, unsigned int minSize){
+			const unsigned char* ulVal, *urVal = nullptr;
+			ToUChar(ulVal, lVal);
+			ToUChar(urVal, rVal);
+			unsigned int maxSize = minSize + DynamicStr::StrLen(rVal);
+			for (int i = minSize; i < maxSize; i++){
+				if (ulVal[i] != *urVal){
+					return false;
+				}
+				++urVal;
+			}
+			return true;
+		}
+
+		static bool StrCmp_Size(const char* lVal, const char* rVal, unsigned int size){
+			const unsigned char* ulVal, *urVal = nullptr;
+			ToUChar(ulVal, lVal);
+			ToUChar(urVal, rVal);
+
+			for (int i = 0; i < size; i++){
+				if (*ulVal != *urVal){
+					return false;
+				}
+				++ulVal;
+				++urVal;
+			}
+
+			return *ulVal == *urVal;
+		}
 
 		static bool StrCmp_Org(const char* lVal, const char* rVal){
 			const unsigned char* ulVal, *urVal = nullptr;

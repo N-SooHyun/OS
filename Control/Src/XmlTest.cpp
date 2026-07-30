@@ -118,9 +118,33 @@ void XmlParserTest(){
 	XmlObj root(&RdStr);
 }
 
+void StrCmpNew(){
+	DynamicStr str(32);
+	str.Set_Str("[CDATA[");
+
+	DynamicStr::StrCmp_Size(str.Get_Str(), "[CDATA[", 6);
+
+	str.Set_Str("ABCDEFG[CDATA[");
+	int csr = 0;
+	while (1){
+		csr++;
+		if (str.Char_Get_Str(csr) == '[' && str.Char_Get_Str(csr + 1) == 'C')
+			break;
+	}
+	
+	bool ck = DynamicStr::StrCmp_rValSize(str.Get_Str(), "[CDATA[", csr);
+	ck = DynamicStr::StrCmp_rValSize(str.Get_Str(), "[CDATA", csr);
+	if (ck){
+		printf("true");
+	}
+	else{
+		printf("false");
+	}
+}
 
 void XmlTestFunc(){
-	XmlTest();
+	StrCmpNew();
+	//XmlTest();
 	//XmlConvertOperTest();
 	//XmlParserTest();
 }
