@@ -84,10 +84,10 @@ public:
 		if (AddNode == nullptr || idx <= 0 || idx > Index + 1) return;
 
 		// 맨 뒤에 추가하는 경우는 기존 로직 재활용
-		if (idx == Index + 1 || Index == 0){
-			AddList(AddNode);
-			return;
-		}
+		//if (idx == Index + 1 || Index == 0){
+		//	AddList(AddNode);
+		//	return;
+		//}
 		Node<T>* newNode = new Node<T>();
 		newNode->Data = AddNode;
 

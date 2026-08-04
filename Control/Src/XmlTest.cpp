@@ -42,7 +42,7 @@ void XmlTest(){
 
 	//XmlPrint(&root);
 
-	XmlObj NullRoot("NullObj", NULL);
+	XmlObj NullRoot("NullObj", NULL, NULL);
 
 	XmlPrint(&NullRoot);
 
@@ -143,8 +143,8 @@ void StrCmpNew(){
 }
 
 void XmlTestFunc(){
-	StrCmpNew();
-	//XmlTest();
+	//StrCmpNew();
+	XmlTest();
 	//XmlConvertOperTest();
 	//XmlParserTest();
 }

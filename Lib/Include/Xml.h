@@ -141,7 +141,7 @@ class XmlParser{
 	void ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol);
 	void ValMake(char* rVal, int& Csr, _PrsTol& PrsTol, bool isCdata = false);
 
-	XmlObj* CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol);
+	void CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol);
 
 	XmlObj* RealParser(char*);
 public:
@@ -230,6 +230,7 @@ class XmlObj : public XmlVal, public AssignObjOper, public AssignAttrOper{
 	friend class XmlStr;
 	friend class XmlAttrObj;
 
+	XmlObj* Parent;
 	XmlStr Name;
 	LinkedList<XmlAttrObj> Attrs;
 	LinkedList<XmlVal> Vals;		// 자식 객체이거나 값이거나
@@ -243,8 +244,8 @@ public:
 	virtual char* c_toString() override;
 	virtual DynamicStr* d_toString() override;
 
-	XmlObj(DynamicStr* Name, bool isNotNull = true);
-	XmlObj(char* Name, bool isNotNull = true);
+	XmlObj(DynamicStr* Name, XmlObj* Parent = nullptr, bool isNotNull = true);
+	XmlObj(char* Name, XmlObj* Parent = nullptr, bool isNotNull = true);
 	~XmlObj() = default;
 
 	void DelAttrs();
