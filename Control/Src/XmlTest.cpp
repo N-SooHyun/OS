@@ -30,19 +30,31 @@ void XmlTest(){
 	root("RtChild5") = "Value";
 	root("RtChild6") << "Value";
 	//XmlPrint(&root);
+	
 
 	char* lVal = (char*)root("RtChild3");
 	XmlObj* plVal = (XmlObj*)root("RtChild5");
 
 	lVal = (char*)root("RtChild2")["Attr1"];
 
-	printf("%s\n", lVal);
+	XmlObj* Child = root.getObj(0);
+	Child->operator()("DeepObj") = "Value";
+	Child = Child->getObj(0);
+	Child->ParentPrt();
+
+	XmlPrint(Child);
+
+	Child = nullptr;
+	for (int i = 0; i < root.getObjIdx(); i++){
+		Child = root.getObj(i);
+		Child->ParentPrt();
+	}
 
 	root = "Test";
 
 	//XmlPrint(&root);
 
-	XmlObj NullRoot("NullObj", NULL, NULL);
+	XmlObj NullRoot("NullObj", NULL);
 
 	XmlPrint(&NullRoot);
 

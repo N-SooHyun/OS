@@ -128,7 +128,7 @@ void XmlAttrObj::setValue(DynamicStr* rVal){
 /* ================================================
 * XmlObj
 ==================================================*/
-XmlObj::XmlObj(DynamicStr *Name, XmlObj* Parent, bool isNotNull) : Name(Name, 128), Parent(Parent){
+XmlObj::XmlObj(DynamicStr *Name, bool isNotNull) : Name(Name, 128){
 	XmlObj* Obj = XmlParser::Parse(Name);
 	if (Obj == nullptr && isNotNull){
 		InitValSet();
@@ -138,7 +138,7 @@ XmlObj::XmlObj(DynamicStr *Name, XmlObj* Parent, bool isNotNull) : Name(Name, 12
 		delete Obj;
 	}
 }
-XmlObj::XmlObj(char *Name, XmlObj* Parent, bool isNotNull) : Name(Name, 128), Parent(Parent){
+XmlObj::XmlObj(char *Name, bool isNotNull) : Name(Name, 128){
 	XmlObj* Obj = XmlParser::Parse(Name);
 	if (Obj == nullptr && isNotNull){
 		InitValSet();
@@ -261,14 +261,17 @@ void XmlObj::setVal(char* newVal){
 }
 void XmlObj::setObj(DynamicStr* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
+	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	Vals.setNode(pnewObj);
 }
 void XmlObj::setObj(char* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
+	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	Vals.setNode(pnewObj);
 }
 void XmlObj::addObj(DynamicStr* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
+	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
 	}
@@ -278,6 +281,7 @@ void XmlObj::addObj(DynamicStr* newObj){
 }
 void XmlObj::addObj(char* newObj){
 	XmlVal* pnewObj = new XmlObj(newObj);
+	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
 	}
@@ -434,6 +438,9 @@ void AssignObjOper::DepCpy(XmlObj* lVal, XmlObj* rVal) {
 		lVal->addAttr(AttrName, AttrVal);
 	}
 
+	// 2.5단계: Parent 대입
+	lVal->Parent = rVal->Parent;
+
 	// 3단계: 내부 객체 재귀 복사
 	// 주의: 이 리스트는 항상 XmlObj만 담는다는 전제(혼합 콘텐츠 미지원) 하에 null 체크를 생략함
 	for (int ObjIdx = 0; ObjIdx <= rValIdx; ObjIdx++) {
@@ -465,6 +472,7 @@ void AssignObjOper::operator<<(char* rVal) {
 	if (rValXml == nullptr){
 		if (ValSet(rVal)) return;
 		GetTarget()->addObj(rVal);
+		rValXml->Parent = GetTarget();
 	}
 	else{
 		this->operator<<(rValXml);
@@ -475,6 +483,7 @@ void AssignObjOper::operator<<(DynamicStr* rVal) {
 	if (rValXml == nullptr){
 		if (ValSet(rVal)) return;
 		GetTarget()->addObj(rVal);
+		rValXml->Parent = GetTarget();
 	}
 	else{
 		this->operator<<(rValXml);

@@ -229,6 +229,7 @@ class XmlObj : public XmlVal, public AssignObjOper, public AssignAttrOper{
 	friend class XmlObjOper;
 	friend class XmlStr;
 	friend class XmlAttrObj;
+	friend class AssignObjOper;
 
 	XmlObj* Parent;
 	XmlStr Name;
@@ -244,10 +245,17 @@ public:
 	virtual char* c_toString() override;
 	virtual DynamicStr* d_toString() override;
 
-	XmlObj(DynamicStr* Name, XmlObj* Parent = nullptr, bool isNotNull = true);
-	XmlObj(char* Name, XmlObj* Parent = nullptr, bool isNotNull = true);
+	XmlObj(DynamicStr* Name, bool isNotNull = true);
+	XmlObj(char* Name, bool isNotNull = true);
 	~XmlObj() = default;
-
+	void ParentPrt(){
+		if (Parent != nullptr){
+			printf("%s\n", Parent->getName());
+		}
+		else{
+			printf("Parent NullPtr");
+		}
+	}
 	void DelAttrs();
 	void DelVals();
 	void DelObjVal(int = -1);
