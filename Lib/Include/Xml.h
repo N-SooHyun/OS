@@ -248,14 +248,7 @@ public:
 	XmlObj(DynamicStr* Name, bool isNotNull = true);
 	XmlObj(char* Name, bool isNotNull = true);
 	~XmlObj() = default;
-	void ParentPrt(){
-		if (Parent != nullptr){
-			printf("%s\n", Parent->getName());
-		}
-		else{
-			printf("Parent NullPtr");
-		}
-	}
+	XmlObj* getParentXml();
 	void DelAttrs();
 	void DelVals();
 	void DelObjVal(int = -1);

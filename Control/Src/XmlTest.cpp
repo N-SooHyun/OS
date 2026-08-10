@@ -40,14 +40,12 @@ void XmlTest(){
 	XmlObj* Child = root.getObj(0);
 	Child->operator()("DeepObj") = "Value";
 	Child = Child->getObj(0);
-	Child->ParentPrt();
 
 	XmlPrint(Child);
 
 	Child = nullptr;
 	for (int i = 0; i < root.getObjIdx(); i++){
 		Child = root.getObj(i);
-		Child->ParentPrt();
 	}
 
 	root = "Test";
@@ -55,6 +53,7 @@ void XmlTest(){
 	//XmlPrint(&root);
 
 	XmlObj NullRoot("NullObj", NULL);
+	NullRoot.setVal("");
 
 	XmlPrint(&NullRoot);
 

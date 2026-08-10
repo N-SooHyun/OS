@@ -148,7 +148,7 @@ XmlObj::XmlObj(char *Name, bool isNotNull) : Name(Name, 128){
 		delete Obj;
 	}
 }
-
+XmlObj* XmlObj::getParentXml(){	return Parent; }
 
 char* XmlObj::c_toString() {
 	auto* toStr = new DynamicStr(128);
@@ -690,7 +690,10 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 
 	bool ObjNameFns = false;	//°ø¹éÀ¸·Î ±¸ºÐ
 	bool AttrNameFns = false;	//=·Î ±¸ºÐ
+	bool AttrValStr = false;
 	bool AttrValFns = false;	//" ·Î ±¸ºÐ
+	bool isObjNull = false;		// false·Î °è¼Ó À¯Áö°¡ µÈ´Ù¸é CurXmlObj¿¡ °ø¹é Value¸¦ ¹Ýµå½Ã ³Ö¾îÁÙ°Í
+
 	for (; rVal[Csr] != '>'; Csr++){
 		PrsTol.PrvWord = rVal[Csr - 1];
 		PrsTol.CurWord = rVal[Csr];
@@ -698,37 +701,38 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 
 		//ObjName Mode ¶ç¾î¾²±â ¹ÌÇã¿ë
 		if (PrsTol.CurWord == ' '){	//ÀÌ¸§ÀÌ ³¡³µÀ½À» ÀÇ¹Ì
-			if (ObjNameFns) continue;	//ÀÌ¸§ÀÌ³ª ¼Ó¼º»çÀÌ¿¡ µé¾î°¡´Â°Ô ¾Æ´ÑÀÌ»ó ÀÚÀ¯·Î¿ò
-			else {
+			if (ObjNameFns == false){
 				if (PrsTol.CurXmlObj != nullptr){
-					//ÀÌ°Å´Â ¾î¶»°Ô ÇÏÁö? 
+					auto* rVal = new XmlObj(PrsTol.ObjName, NULL);
+					PrsTol.CurXmlObj->operator<<(rVal);
 				}
 				else{
-					PrsTol.CurXmlObj = new XmlObj(PrsTol.ObjName);
+					PrsTol.CurXmlObj = new XmlObj(PrsTol.ObjName, NULL);
 				}
-				ObjNameFns = true;
+				ObjNameFns = true; 			
 			}
+			else if (AttrNameFns == false) { AttrNameFns = true; }
+			else continue;
 		}
 		else if (PrsTol.CurWord == ','){	//¼Ó¼ºÀÌ ¶Ç ÀÖ´Ù´Â ÀÌ¾ß±â
 			if (AttrNameFns && AttrValFns){
-				PrsTol.CurXmlObj->addAttr(PrsTol.AttrName, PrsTol.AttrValue);
-				delete PrsTol.AttrName; delete PrsTol.AttrValue;
-				PrsTol.AttrName = PrsTol.AttrValue = nullptr;
 				AttrNameFns = false; AttrValFns = false;
+				delete PrsTol.AttrName; delete PrsTol.AttrValue;
+				PrsTol.AttrName = new DynamicStr(16); PrsTol.AttrValue = new DynamicStr(16);
 			}
-			// ¿¹¿Ü
 		}
 		else if (PrsTol.CurWord == '='){	//¼Ó¼ºÀÌ ³¡³µÀ½À» ÀÇ¹Ì
 			if (AttrNameFns == false) AttrNameFns = true;
-			// ¿¹¿Ü
 		}
 		else if (PrsTol.CurWord == '\"'){
-			if (AttrValFns == false) AttrValFns = true;
-			// ¿¹¿Ü
+			if (AttrValStr == false) AttrValStr = true;
+			else if (AttrValStr && AttrValFns == false) { 
+				AttrValFns = true; 
+				PrsTol.CurXmlObj->addAttr(PrsTol.AttrName, PrsTol.AttrValue);
+				//PrsTol.CurXmlObj°¡ nullptrÀÎ °æ¿ì´Â ¾ø´Â°Ô ¸Â±äÇÏ´Ù¸¸.. (<"ÀÌ·±½ÄÀ¸·Î> ¾´ xmlÀÌ¶ó¸é Å©·¡½¬°¡ ³¯°Í)
+			}
 		}
-		else if (PrsTol.CurWord == '/' && PrsTol.NxtWord == '>'){
-			//Value°¡ NullÀÎ Xml¸¸µé°Í
-		}
+		else if (PrsTol.CurWord == '/' && PrsTol.NxtWord == '>'){ isObjNull = true; }
 		else{
 			if (ObjNameFns == false){
 				PrsTol.ObjName->Append_Char(&PrsTol.CurWord);
@@ -736,23 +740,15 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 			else if (AttrNameFns == false){
 				PrsTol.AttrName->Append_Char(&PrsTol.CurWord);
 			}
-			else if (AttrValFns == false){
+			else if (AttrValStr && AttrValFns == false){
 				PrsTol.AttrValue->Append_Char(&PrsTol.CurWord);
-			}
-			else{
-				//³¡?
 			}
 		}
 	}
 	
-	if (PrsTol.CurXmlObj == nullptr){
-		PrsTol.CurXmlObj = new XmlObj(PrsTol.ObjName);
-		PrsTol.CurXmlObj->addAttr(PrsTol.AttrName, PrsTol.AttrValue);
+	if (isObjNull == false){
+		PrsTol.CurXmlObj->setVal("");
 	}
-	else{
-
-	}
-
 }
 
 void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
@@ -764,9 +760,7 @@ void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 			
 		if (PrsTol.CurWord == '/'){ //Á¾·á ÅÂ±×
 			if (PrsTol.CurXmlObj != nullptr){
-				//»óÀ§ °´Ã¼ ÀÖÀ¸¸é ¿Ã¶ó°¡°í ¾øÀ¸¸é ±×³É nullptr ÇØÁÖ±â
-				PrsTol.CurXmlObj;
-				//»óÀ§ °´Ã¼¸¦ ¾Ë ¼ö ÀÖ´Â ¹æ¹ýÀ» ¸¸µé¾î¾ßÇÔ
+				PrsTol.CurXmlObj = PrsTol.CurXmlObj->getParentXml();
 			}
 			PrsTol.Stack--;
 			for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return; } }
