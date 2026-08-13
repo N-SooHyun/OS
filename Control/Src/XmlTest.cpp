@@ -127,35 +127,31 @@ void XmlParserTest(){
 
 	printf("파서 시작\n");
 	XmlObj root(&RdStr);
+
+	XmlPrint(&root);
+
+	bool bTest = root.getObj("status")->isNul();
+	bTest ? printf("True") : printf("False");
 }
 
 void StrCmpNew(){
 	DynamicStr str(32);
-	str.Set_Str("[CDATA[");
+	str.Set_Str("Test Test Test ![CDATA[ Test Test");
 
-	DynamicStr::StrCmp_Size(str.Get_Str(), "[CDATA[", 6);
-
-	str.Set_Str("ABCDEFG[CDATA[");
 	int csr = 0;
-	while (1){
-		csr++;
-		if (str.Char_Get_Str(csr) == '[' && str.Char_Get_Str(csr + 1) == 'C')
-			break;
+	for (char c=' ';;csr++){
+		c = str.Char_Get_Str(csr);
+		if (c == '!')break;
 	}
-	
-	bool ck = DynamicStr::StrCmp_rValSize(str.Get_Str(), "[CDATA[", csr);
-	ck = DynamicStr::StrCmp_rValSize(str.Get_Str(), "[CDATA", csr);
-	if (ck){
-		printf("true");
-	}
-	else{
-		printf("false");
-	}
+
+	bool bTest = DynamicStr::StrCmp_rValSize(str.Get_Str(), "[CDATA[", ++csr);
+
+	bTest ? printf("True") : printf("False");
 }
 
 void XmlTestFunc(){
 	//StrCmpNew();
-	XmlTest();
+	//XmlTest();
 	//XmlConvertOperTest();
-	//XmlParserTest();
+	XmlParserTest();
 }

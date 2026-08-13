@@ -259,18 +259,21 @@ void XmlObj::setVal(char* newVal){
 	XmlVal* pnewVal = new XmlValue(newVal);
 	Vals.setNode(pnewVal);
 }
-void XmlObj::setObj(DynamicStr* newObj){
-	XmlVal* pnewObj = new XmlObj(newObj);
+void XmlObj::setObj(DynamicStr* newObj, bool isNotNull){
+	XmlVal* pnewObj = nullptr;
+	isNotNull ? pnewObj = new XmlObj(newObj) : pnewObj = new XmlObj(newObj, NULL);
 	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	Vals.setNode(pnewObj);
 }
-void XmlObj::setObj(char* newObj){
-	XmlVal* pnewObj = new XmlObj(newObj);
+void XmlObj::setObj(char* newObj, bool isNotNull){
+	XmlVal* pnewObj = nullptr;
+	isNotNull ? pnewObj = new XmlObj(newObj) : pnewObj = new XmlObj(newObj, NULL);
 	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	Vals.setNode(pnewObj);
 }
-void XmlObj::addObj(DynamicStr* newObj){
-	XmlVal* pnewObj = new XmlObj(newObj);
+void XmlObj::addObj(DynamicStr* newObj, bool isNotNull){
+	XmlVal* pnewObj = nullptr;
+	isNotNull ? pnewObj = new XmlObj(newObj) : pnewObj = new XmlObj(newObj, NULL);
 	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
@@ -279,8 +282,9 @@ void XmlObj::addObj(DynamicStr* newObj){
 		Vals.AddList(pnewObj);
 	}
 }
-void XmlObj::addObj(char* newObj){
-	XmlVal* pnewObj = new XmlObj(newObj);
+void XmlObj::addObj(char* newObj, bool isNotNull){
+	XmlVal* pnewObj = nullptr;
+	isNotNull ? pnewObj = new XmlObj(newObj) : pnewObj = new XmlObj(newObj, NULL);
 	static_cast<XmlObj*>(pnewObj)->Parent = this;
 	if (isVal() || isNul()){
 		Vals.setNode(pnewObj);
@@ -447,8 +451,14 @@ void AssignObjOper::DepCpy(XmlObj* lVal, XmlObj* rVal) {
 		XmlObj* rValObj = rVal->getObj(ObjIdx);
 
 		char* rValObjName = rValObj->getName();
-		lVal->addObj(rValObjName);
+		lVal->addObj(rValObjName, NULL);
 		DepCpy(lVal->getObj(ObjIdx), rValObj);
+	}
+
+	//4´Ü°è: ³»ºÎ Value º¹»ç
+	if (rVal->isVal()){
+		XmlValue* pVal = rVal->getVal();
+		lVal->setVal(rVal->getVal()->c_toString());
 	}
 }
 bool AssignObjOper::ValSet(char* rVal) {
@@ -471,7 +481,7 @@ void AssignObjOper::operator<<(char* rVal) {
 	XmlObj* rValXml = XmlParser::Parse(rVal);
 	if (rValXml == nullptr){
 		if (ValSet(rVal)) return;
-		GetTarget()->addObj(rVal);
+		GetTarget()->addObj(rVal, NULL);
 		rValXml->Parent = GetTarget();
 	}
 	else{
@@ -482,7 +492,7 @@ void AssignObjOper::operator<<(DynamicStr* rVal) {
 	XmlObj* rValXml = XmlParser::Parse(rVal);
 	if (rValXml == nullptr){
 		if (ValSet(rVal)) return;
-		GetTarget()->addObj(rVal);
+		GetTarget()->addObj(rVal, NULL);
 		rValXml->Parent = GetTarget();
 	}
 	else{
@@ -493,18 +503,18 @@ void AssignObjOper::operator<<(DynamicStr* rVal) {
 void AssignObjOper::operator<<(XmlObj* rVal) {
 	XmlObj* RootObj = GetTarget();
 	if (RootObj == nullptr){ return; }
-	RootObj->addObj("");
+	RootObj->addObj("", NULL);
 	XmlObj* addLVal = RootObj->getObj();	// °¡Àå ¸¶Áö¸· °´Ã¼ °¡Á®¿À±â
-
+	rVal->Parent = addLVal->Parent;
 	DepCpy(addLVal, rVal);
 }
 
 void AssignObjOper::operator<<(XmlObj& rVal) {
 	XmlObj* RootObj = GetTarget();
 	if (RootObj == nullptr){ return; }
-	RootObj->addObj("");
+	RootObj->addObj("", NULL);
 	XmlObj* addLVal = RootObj->getObj();	// °¡Àå ¸¶Áö¸· °´Ã¼ °¡Á®¿À±â
-
+	rVal.Parent = addLVal->Parent;
 	DepCpy(addLVal, &rVal);
 }
 
@@ -676,8 +686,29 @@ void XmlParser::ValMake(char* rVal, int& Csr, _PrsTol& PrsTol, bool isCdata){	//
 	if (PrsTol.CurXmlObj == nullptr){
 		return;	//±×³É °è¼Ó ¹ÝÈ¯ÇÏ¸é¼­ ³Ñ±â¼À ÀÇ¹Ì°¡ ¾øÀ½
 	}
+	PrsTol.Value = new DynamicStr(16);
+	if (isCdata){
+		Csr += 7;
+		for (; ; Csr++){
+			if (rVal[Csr] == ']' && rVal[Csr + 1] == ']' && rVal[Csr + 2] == '>'){ 
+				Csr += 3; break; 
+			}
+			PrsTol.Value->Append_Char(&rVal[Csr]);
+		}
+	}
+	else{
+		for (; rVal[Csr] != '<'; Csr++){
+			PrsTol.Value->Append_Char(&rVal[Csr]);
+		}
+		Csr--;	//CurCsr°¡ '<'°¡ µÇ°Ô²û À¯µµ
+	}
 
-	//¿©±â¼­ ºÎÅÍ ÁøÁ¤ÇÑ ½ÃÀÛ
+	if (PrsTol.CurXmlObj != nullptr){
+		PrsTol.CurXmlObj->setVal(PrsTol.Value);
+	}
+
+	delete PrsTol.Value;
+	PrsTol.Value = nullptr;
 }
 
 void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸¸µé¾îÁØ´Ù Value±îÁö´Â ¾È¸¸µë
@@ -686,7 +717,6 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 	PrsTol.ObjName = new DynamicStr(16);
 	PrsTol.AttrName = new DynamicStr(16);
 	PrsTol.AttrValue = new DynamicStr(16);		
-	LinkedList<LinkedList<DynamicStr>>Attrs;	//¼Ó¼ºÀü¿ë ¹è¿­
 
 	bool ObjNameFns = false;	//°ø¹éÀ¸·Î ±¸ºÐ
 	bool AttrNameFns = false;	//=·Î ±¸ºÐ
@@ -705,6 +735,7 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 				if (PrsTol.CurXmlObj != nullptr){
 					auto* rVal = new XmlObj(PrsTol.ObjName, NULL);
 					PrsTol.CurXmlObj->operator<<(rVal);
+					PrsTol.CurXmlObj = PrsTol.CurXmlObj->getObj();
 				}
 				else{
 					PrsTol.CurXmlObj = new XmlObj(PrsTol.ObjName, NULL);
@@ -712,16 +743,21 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 				ObjNameFns = true; 			
 			}
 			else if (AttrNameFns == false) { AttrNameFns = true; }
-			else continue;
-		}
-		else if (PrsTol.CurWord == ','){	//¼Ó¼ºÀÌ ¶Ç ÀÖ´Ù´Â ÀÌ¾ß±â
-			if (AttrNameFns && AttrValFns){
-				AttrNameFns = false; AttrValFns = false;
+			else if (AttrNameFns && AttrValFns){
+				AttrNameFns = false; AttrValFns = false; AttrValStr = false;
 				delete PrsTol.AttrName; delete PrsTol.AttrValue;
 				PrsTol.AttrName = new DynamicStr(16); PrsTol.AttrValue = new DynamicStr(16);
 			}
+			else continue;
 		}
-		else if (PrsTol.CurWord == '='){	//¼Ó¼ºÀÌ ³¡³µÀ½À» ÀÇ¹Ì
+		//else if (PrsTol.CurWord == ','){	//¼Ó¼ºÀÌ ¶Ç ÀÖ´Ù´Â ÀÌ¾ß±â
+		//	if (AttrNameFns && AttrValFns){
+		//		AttrNameFns = false; AttrValFns = false;
+		//		delete PrsTol.AttrName; delete PrsTol.AttrValue;
+		//		PrsTol.AttrName = new DynamicStr(16); PrsTol.AttrValue = new DynamicStr(16);
+		//	}
+		//}
+		else if (PrsTol.CurWord == '='){	//¼Ó¼º¸íÀÌ ³¡³µÀ½À» ÀÇ¹Ì
 			if (AttrNameFns == false) AttrNameFns = true;
 		}
 		else if (PrsTol.CurWord == '\"'){
@@ -732,7 +768,9 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 				//PrsTol.CurXmlObj°¡ nullptrÀÎ °æ¿ì´Â ¾ø´Â°Ô ¸Â±äÇÏ´Ù¸¸.. (<"ÀÌ·±½ÄÀ¸·Î> ¾´ xmlÀÌ¶ó¸é Å©·¡½¬°¡ ³¯°Í)
 			}
 		}
-		else if (PrsTol.CurWord == '/' && PrsTol.NxtWord == '>'){ isObjNull = true; }
+		else if (PrsTol.CurWord == '/' && PrsTol.NxtWord == '>'){ 
+			isObjNull = true; 
+		}
 		else{
 			if (ObjNameFns == false){
 				PrsTol.ObjName->Append_Char(&PrsTol.CurWord);
@@ -745,10 +783,31 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//¿©±â¼­ XmlÀ» ¸
 			}
 		}
 	}
+	if (ObjNameFns == false){ //<Name> ÀÌ·¸°Ô ³¡³ª´Â °æ¿ì
+		if (PrsTol.CurXmlObj != nullptr){
+			auto* rVal = new XmlObj(PrsTol.ObjName, NULL);
+			PrsTol.CurXmlObj->operator<<(rVal);
+			PrsTol.CurXmlObj = PrsTol.CurXmlObj->getObj();
+
+			//Debug
+			XmlObj* pRoot = PrsTol.CurXmlObj->getParentXml();
+			for (;;){
+				if (pRoot->getParentXml() == nullptr) break;
+				pRoot = pRoot->getParentXml();
+			}
+		}
+		else{
+			PrsTol.CurXmlObj = new XmlObj(PrsTol.ObjName, NULL);
+		}
+		ObjNameFns = true;
+	}
 	
 	if (isObjNull == false){
 		PrsTol.CurXmlObj->setVal("");
 	}
+	Csr--;	//rVal[Csr] == '>' ÀÎ ½ÃÁ¡¿¡¼­ ³¡ÀÌ ³µ±â¿¡ ÇÑ¹ø »©ÁÖ±â
+	delete PrsTol.ObjName; 	delete PrsTol.AttrName;	delete PrsTol.AttrValue;
+	PrsTol.ObjName = PrsTol.AttrName = PrsTol.AttrValue = nullptr;
 }
 
 void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
@@ -759,11 +818,11 @@ void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 		PrsTol.NxtWord = rVal[Csr + 1];
 			
 		if (PrsTol.CurWord == '/'){ //Á¾·á ÅÂ±×
-			if (PrsTol.CurXmlObj != nullptr){
+			if (PrsTol.CurXmlObj != nullptr && PrsTol.Stack > 1){
 				PrsTol.CurXmlObj = PrsTol.CurXmlObj->getParentXml();
 			}
 			PrsTol.Stack--;
-			for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return; } }
+			for (;; Csr++){ if (rVal[Csr] == '>'){ return; } }
 		}
 		//Æ¯¼ö ¼±¾ð ºÎ CDATA¿Í ÁÖ¼®
 		else if (PrsTol.CurWord == '!'){
@@ -772,8 +831,11 @@ void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 			}
 			//Value°¡ µÇ¾î¾ßÇÔ CDATAÀÇ °æ¿ì¿¡´Â
 			//[CDATA[ °íÁ¤ ¸®ÅÍ·²
-			if (DynamicStr::StrCmp_rValSize(rVal, "[CDATA[", Csr)){
-				ValMake(rVal, ++Csr, PrsTol);
+			if (DynamicStr::StrCmp_rValSize(rVal, "[CDATA[", Csr+1)){
+				ValMake(rVal, ++Csr, PrsTol, true);
+			}
+			else{//DOCTYPE°°Àº °æ¿ì ÇöÀç´Â Skip
+				for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return; } }
 			}
 		}
 		//Ã³¸® ¸í·É¾î ³ªÁß¿¡ ¸¸µé°Å³ª ÀÚ·á±¸Á¶ ÇÏ³ª ¸¸µé¾î¾ßÇÔ ÇöÀç´Â Skip
@@ -781,7 +843,7 @@ void XmlParser::CurXmlObjParse(char* rVal, int& Csr, _PrsTol& PrsTol){
 			for (;; Csr++){ if (rVal[Csr] == '>'){ Csr++; return; } }
 		}
 		else{	//±×³É ÆÄ½Ì ÁøÇàÇÏ¸é µÊ			
-			ObjMake(rVal, ++Csr, PrsTol);
+			ObjMake(rVal, Csr, PrsTol);
 		}
 	}
 	return;
@@ -801,21 +863,16 @@ XmlObj* XmlParser::RealParser(char* rVal){
 			CurXmlObjParse(rVal, Csr, PrsTol);
 		}
 		else{	//Value
+			//ÇöÀç ³ªÀÇ ÀÚ·á±¸Á¶´Â Mixed Content±¸ÇöÀÌ ¾ÈµÇ¾îÀÖÀ½ °í·Î °ø¹é ¹× ÅÇ ÀÌ·±°Íµé Á¦¿ÜÇÒ°Í
+			if (PrsTol.CurWord == ' '
+				|| PrsTol.CurWord == '\n'
+				|| PrsTol.CurWord == '\t') continue;
 			ValMake(rVal, Csr, PrsTol);
-			//if (PrsTol.Value != nullptr){
-			//	if (PrsTol.NxtWord == '<'){	//ÇöÀç Ä¿¼­°¡ ValueÀÇ ³¡À» ÀÇ¹Ì
-			//		PrsTol.CurXmlObj->operator=(PrsTol.Value);
-			//		
-			//	}
-			//}
-			//else{
-			//	PrsTol.Value = new DynamicStr(32);
-			//}
 		}
-
-
 	}
-	return nullptr;
+	auto* rtnXml = PrsTol.CurXmlObj;
+	PrsTol.CurXmlObj = nullptr;
+	return rtnXml;
 }
 
 XmlObj* XmlParser::Parse(char* rVal){	//Static ¸Þ¼Òµå

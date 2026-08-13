@@ -1,45 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 개인 정보를 담고 있는 XML 문서 예제 -->
+<!-- Example XML document containing personal information -->
 <!DOCTYPE person [
     <!ENTITY company "ABC Corporation">
 ]>
 <person>
-    <name>John Smith</name>
-    <age>28</age>
-    <email>john.smith@example.com</email>
-    
-    <!-- 특수문자나 HTML 태그가 포함될 수 있는 내용은 CDATA로 감싸줍니다 -->
-    <bio><![CDATA[
-        John은 <b>개발자</b>이며, 취미로 등산을 즐깁니다.
-        좋아하는 부등호 표현: 5 < 10 && 10 > 5
-        이메일 서명: "Best regards, John & Team"
-    ]]></bio>
+	<status verified="true" active="yes" />
+	
 
-    <address>
-        <city>Seoul</city>
-        <zipcode>06236</zipcode>
-    </address>
-
-    <hobbies>
-        <hobby>Reading</hobby>
-        <hobby>Hiking</hobby>
-    </hobbies>
-
-    <!-- 엔티티(Entity) 사용 예제: 위 DOCTYPE에서 정의한 &company; 사용 -->
-    <employer>&company;</employer>
-
-    <!-- 처리 명령어(Processing Instruction) 예제 -->
-    <?xml-stylesheet type="text/xsl" href="person-style.xsl"?>
-
-    <!-- 네임스페이스(Namespace) 사용 예제 -->
-    <metadata xmlns:custom="http://example.com/custom-schema">
-        <custom:createdBy>System</custom:createdBy>
-        <custom:createdDate>2026-07-29</custom:createdDate>
-    </metadata>
-
-    <!-- 속성(Attribute)과 자체 종료 태그(Self-closing tag) 예제 -->
-    <status verified="true" active="yes" />
-
-    <!-- 특수문자 참조(Character Reference) 예제 -->
-    <note>가격은 &lt; 100 &amp; &gt; 50 사이입니다. 저작권: &#169; 2026</note>
+	
 </person>

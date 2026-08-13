@@ -237,6 +237,7 @@ class XmlObj : public XmlVal, public AssignObjOper, public AssignAttrOper{
 	LinkedList<XmlVal> Vals;		// 자식 객체이거나 값이거나
 
 	void InitValSet();
+	void setaddObjValCtrl(char*, bool isNull = false);
 
 protected:
 	XmlObj* GetTarget();
@@ -267,10 +268,10 @@ public:
 
 	void setVal(DynamicStr*);
 	void setVal(char*);
-	void setObj(DynamicStr*);
-	void setObj(char*);
-	void addObj(DynamicStr*);
-	void addObj(char*);
+	void setObj(DynamicStr*, bool isNotNull = true);
+	void setObj(char*, bool isNotNull = true);
+	void addObj(DynamicStr*, bool isNotNull = true);
+	void addObj(char*, bool isNotNull = true);
 
 	void setAttr(DynamicStr*, DynamicStr*);
 	void setAttr(char*, char*);
