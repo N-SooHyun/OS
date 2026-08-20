@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Example XML document containing personal information -->
+<!DOCTYPE person [
+    <!ENTITY company "ABC Corporation">
+]>
+<person>
+    <name>John Smith</name>
+    <age>28</age>
+    <email>john.smith@example.com</email>
+    
+    <!-- Content that may contain special characters or HTML tags is wrapped in CDATA -->
+    <bio><![CDATA[
+        John is a <b>developer</b> who enjoys hiking as a hobby.
+        Favorite inequality expression: 5 < 10 && 10 > 5
+        Email signature: "Best regards, John & Team"
+    ]]></bio>
+    <address>
+        <city>Seoul</city>
+        <zipcode>06236</zipcode>
+    </address>
+    <hobbies>
+        <hobby>Reading</hobby>
+        <hobby>Hiking</hobby>
+    </hobbies>
+    <!-- Entity usage example: using &company; defined in the DOCTYPE above -->
+    <employer>&company;</employer>
+    <!-- Processing Instruction example -->
+    <?xml-stylesheet type="text/xsl" href="person-style.xsl"?>
+    <!-- Namespace usage example -->
+    <metadata xmlns:custom="http://example.com/custom-schema">
+        <custom:createdBy>System</custom:createdBy>
+        <custom:createdDate>2026-07-29</custom:createdDate>
+    </metadata>
+    <!-- Attribute and self-closing tag example -->
+    <status verified="true" active="yes" />
+    <!-- Character Reference example -->
+    <note>The price is between &lt; 100 &amp; &gt; 50. Copyright: &#169; 2026</note>
+</person>

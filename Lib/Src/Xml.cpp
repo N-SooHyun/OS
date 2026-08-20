@@ -805,6 +805,10 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml을 �
 	if (isObjNull == false){
 		PrsTol.CurXmlObj->setVal("");
 	}
+	else{
+		PrsTol.CurXmlObj = PrsTol.CurXmlObj->getParentXml();
+		PrsTol.Stack--;
+	}
 	Csr--;	//rVal[Csr] == '>' 인 시점에서 끝이 났기에 한번 빼주기
 	delete PrsTol.ObjName; 	delete PrsTol.AttrName;	delete PrsTol.AttrValue;
 	PrsTol.ObjName = PrsTol.AttrName = PrsTol.AttrValue = nullptr;
