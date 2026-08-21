@@ -120,6 +120,7 @@ void XmlConvertOperTest(){
 
 void XmlParserTest(){
 	FILE* pFile = FileFunc::RdFile("./Test/XmlTest.xml");
+	//FILE* pFile = FileFunc::RdFile("./Test/files/04_attr_plus_cdata.xml");
 	DynamicStr RdStr(64);
 	FileFunc::FileToStr(pFile, RdStr);
 
@@ -128,10 +129,18 @@ void XmlParserTest(){
 	printf("파서 시작\n");
 	XmlObj root(&RdStr);
 
-	XmlPrint(&root);
+	FILE* wtFile = FileFunc::WtFile("./Test/Result.txt");
+	if (!wtFile) {
+		printf("fopen 실패: errno=%d (%s)\n", errno, strerror(errno));
+		return;   // 여기서 안 막으면 fprintf(NULL, ...)로 또 죽습니다
+	}
 
-	bool bTest = root.getObj("status")->isNul();
-	bTest ? printf("True") : printf("False");
+	if (wtFile != NULL) XmlPrint(&root, true, wtFile);
+
+	//bool bTest = root.getObj("status")->isNul();
+	//bTest ? printf("True") : printf("False");
+	fclose(pFile);
+	if(wtFile != NULL) fclose(wtFile);
 }
 
 void StrCmpNew(){

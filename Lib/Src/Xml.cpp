@@ -7,45 +7,47 @@ using namespace Dynamic;
 /* ================================================
 * Xml Print - 트리를 문자열로 출력하는 유틸리티
 ==================================================*/
-static void XmlAttrPrint(XmlObj* Obj){
+static void XmlAttrPrint(XmlObj* Obj, bool isFile, FILE* pFile){
 	int AttrsIdx = Obj->getAttrsIdx();
-	AttrsIdx != -1 ? printf(" ") : 0;
+	AttrsIdx != -1 ? (isFile ? fprintf(pFile, " ") : printf(" ")) : 0;
 	for (int i = 0; i <= AttrsIdx; i++){
-		if (i == AttrsIdx) printf("%s = \"%s\"", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
-		else printf("%s = \"%s\" ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+		if (i == AttrsIdx) 
+			isFile ? fprintf(pFile, "%s = \"%s\"", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue()) : printf("%s = \"%s\"", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
+		else 
+			isFile ? fprintf(pFile, "%s = \"%s\" ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue()) : printf("%s = \"%s\" ", Obj->getAttr(i)->getName(), Obj->getAttr(i)->getValue());
 	}
 }
 
-static void XmlValuePrint(XmlObj* Obj, int floor){
+static void XmlValuePrint(XmlObj* Obj, int floor, bool isFile, FILE* pFile){
 	for (int i = 0; i < floor; i++){
-		printf("\t");
+		isFile ? fprintf(pFile, "\t") : printf("\t");
 	}
-	printf("<%s", Obj->getName());
-	XmlAttrPrint(Obj);
+	isFile ? fprintf(pFile, "<%s",Obj->getName()) : printf("<%s", Obj->getName());
+	XmlAttrPrint(Obj, isFile, pFile);
 
 	if (Obj->isNul()){
-		printf("/>\n");
+		isFile ? fprintf(pFile, "/>\n") : printf("/>\n");
 	}
 	else{
-		printf(">\n");
+		isFile ? fprintf(pFile, ">\n") : printf(">\n");
 		for (int i = 0; i <= floor; i++){
-			printf("\t");
+			isFile ? fprintf(pFile, "\t") : printf("\t");
 		}
-		printf("%s\n", Obj->getVal()->Val.getName());
+		isFile ? fprintf(pFile, "%s\n", Obj->getVal()->Val.getName()) : printf("%s\n", Obj->getVal()->Val.getName());
 		for (int i = 0; i < floor; i++){
-			printf("\t");
+			isFile ? fprintf(pFile, "\t") : printf("\t");
 		}
-		printf("</%s>\n", Obj->getName());
+		isFile ? fprintf(pFile, "</%s>\n", Obj->getName()) : printf("</%s>\n", Obj->getName());
 	}
 }
 
-static void XmlObjPrint(XmlObj* Obj, int floor){
+static void XmlObjPrint(XmlObj* Obj, int floor, bool isFile, FILE* pFile){
 	for (int i = 0; i < floor; i++){
-		printf("\t");
+		isFile ? fprintf(pFile, "\t") : printf("\t");
 	}
-	printf("<%s", Obj->getName());
-	XmlAttrPrint(Obj);
-	printf(">\n");
+	isFile ? fprintf(pFile, "<%s", Obj->getName()) : printf("<%s", Obj->getName());
+	XmlAttrPrint(Obj, isFile, pFile);
+	isFile ? fprintf(pFile, ">\n") : printf(">\n");
 
 	XmlObj* pObj = nullptr;
 
@@ -53,34 +55,34 @@ static void XmlObjPrint(XmlObj* Obj, int floor){
 		pObj = Obj->getObj(i);
 
 		if (pObj->isVal()){
-			XmlValuePrint(pObj, floor + 1);
+			XmlValuePrint(pObj, floor + 1, isFile, pFile);
 		}
 		else if(pObj->isObj()){
-			XmlObjPrint(pObj, floor + 1);
+			XmlObjPrint(pObj, floor + 1, isFile, pFile);
 		}
 		else if(pObj->isNul()){
-			XmlValuePrint(pObj, floor + 1);
+			XmlValuePrint(pObj, floor + 1, isFile, pFile);
 		}
 	}
 
 	for (int i = 0; i < floor; i++){
-		printf("\t");
+		isFile ? fprintf(pFile, "\t") :  printf("\t");
 	}
-	printf("</%s>\n", Obj->getName());
+	isFile ? fprintf(pFile, "</%s>\n", Obj->getName()) : printf("</%s>\n", Obj->getName());
 }
 
-void XmlPrint(XmlObj* Root){
+void XmlPrint(XmlObj* Root, bool isFile, FILE* pFile){
 	XmlVal* cursor = Root;
 	XmlObj* Obj = dynamic_cast<XmlObj*>(cursor);
 
 	if (Obj->isVal()){
-		XmlValuePrint(Obj, 0);
+		XmlValuePrint(Obj, 0, isFile, pFile);
 	}
 	else if(Obj->isObj()){
-		XmlObjPrint(Obj, 0);
+		XmlObjPrint(Obj, 0, isFile, pFile);
 	}
 	else if(Obj->isNul()){
-		XmlValuePrint(Obj, 0);
+		XmlValuePrint(Obj, 0, isFile, pFile);
 	}
 }
 
@@ -457,8 +459,7 @@ void AssignObjOper::DepCpy(XmlObj* lVal, XmlObj* rVal) {
 
 	//4단계: 내부 Value 복사
 	if (rVal->isVal()){
-		XmlValue* pVal = rVal->getVal();
-		lVal->setVal(rVal->getVal()->c_toString());
+		lVal->setVal(rVal->getVal()->Val.getName());
 	}
 }
 bool AssignObjOper::ValSet(char* rVal) {
@@ -731,7 +732,10 @@ void XmlParser::ObjMake(char* rVal, int& Csr, _PrsTol& PrsTol){	//여기서 Xml을 �
 
 		//ObjName Mode 띄어쓰기 미허용
 		if (PrsTol.CurWord == ' '){	//이름이 끝났음을 의미
-			if (ObjNameFns == false){
+			if (AttrValStr && AttrValFns == false){
+				PrsTol.AttrValue->Append_Char(&PrsTol.CurWord);
+			}
+			else if (ObjNameFns == false){
 				if (PrsTol.CurXmlObj != nullptr){
 					auto* rVal = new XmlObj(PrsTol.ObjName, NULL);
 					PrsTol.CurXmlObj->operator<<(rVal);
@@ -857,7 +861,7 @@ XmlObj* XmlParser::RealParser(char* rVal){
 	//실제 파싱을 해주는 파서부
 	_PrsTol PrsTol{};
 	for (int Csr = 0; rVal[Csr] != '\0'; Csr++){
-		PrsTol.PrvWord = rVal[Csr - 1];
+		if (Csr > 0) PrsTol.PrvWord = rVal[Csr - 1];
 		PrsTol.CurWord = rVal[Csr];
 		PrsTol.NxtWord = rVal[Csr + 1];
 
@@ -876,6 +880,7 @@ XmlObj* XmlParser::RealParser(char* rVal){
 	}
 	auto* rtnXml = PrsTol.CurXmlObj;
 	PrsTol.CurXmlObj = nullptr;
+	//if (rtnXml == nullptr) printf("파서 실패\n");
 	return rtnXml;
 }
 

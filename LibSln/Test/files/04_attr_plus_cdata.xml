@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <Name LcId="1033"><![CDATA[Channel 1]]></Name>
+  <TxPdo Mandatory="1" Fixed="1" Sm="0" Su="0" PdoOrder="1" OsFac="0" OsMin="0" OsMax="0" OsIndexInc="0" OverwrittenByModule="false">
+    <Index>#x1a00</Index>
+  </TxPdo>
+</root>

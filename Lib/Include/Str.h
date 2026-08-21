@@ -281,27 +281,21 @@ namespace Dynamic {
 		void Set_Char(const char* new_char){
 			const unsigned char* unew_char = nullptr;
 			ToUChar(unew_char, new_char);
+			
+			if (capacity_size <= 1) SizeUpStr();
 
-			int i = 0;
-			if (i >= capacity_size || (capacity_size <= 1)){
-				SizeUpStr();
-			}
-
-			Str[i] = unew_char[i++];
-			Str[i] = '\0';
-			current_size = i;
-			str_last_focus = i - 1;
+			Str[0] = unew_char[0];
+			Str[1] = '\0';
+			current_size = 1;
+			str_last_focus = 0;
 		}
 		void Set_Char(const unsigned char* new_char){
-			int i = 0;
-			if (i >= capacity_size || (capacity_size <= 1)){
-				SizeUpStr();
-			}
+			if (capacity_size <= 1) SizeUpStr();
 
-			Str[i] = new_char[i++];
-			Str[i] = '\0';
-			current_size = i;
-			str_last_focus = i - 1;
+			Str[0] = new_char[0];
+			Str[1] = '\0';
+			current_size = 1;
+			str_last_focus = 0;
 		}
 
 		//문자 1개씩 추가
@@ -333,14 +327,13 @@ namespace Dynamic {
 			const unsigned char* unew_str = nullptr;
 			ToUChar(unew_str, new_str);
 			int len = 0;
+			if (current_size == -1) current_size++;
 			while (unew_str[len] != '\0') len++;
 
 			while (current_size + len >= capacity_size){
 				SizeUpStr();
 			}
 
-			if (current_size == -1)
-				current_size++;
 
 
 			for (int i = 0; i < len; i++){
@@ -352,14 +345,13 @@ namespace Dynamic {
 		}
 		void Append_Str(const unsigned char* new_str){
 			int len = 0;
+			if (current_size == -1) current_size++;
 			while (new_str[len] != '\0') len++;
 
 			while (current_size + len >= capacity_size){
 				SizeUpStr();
 			}
 
-			if (current_size == -1)
-				current_size++;
 
 
 			for (int i = 0; i < len; i++){
@@ -383,7 +375,7 @@ namespace Dynamic {
 				new_Str[idx] = Str[idx + 1];		//앞글자 제외하고 넣기
 			}
 			current_size = current_size > -1 ? (current_size - 1) : -1;
-			delete Str;
+			delete[] Str;
 			Str = new_Str;
 			new_Str = nullptr;
 		}
@@ -484,7 +476,7 @@ namespace Dynamic {
 
 			//Deep Copy (new_size_str <- Str)
 			DEEP_COPY_STR(int i = 0, i < old_capacity, i++, new_size_str, Str);
-			delete Str;
+			delete[] Str;
 
 			Str = new_size_str;
 		}
@@ -495,7 +487,7 @@ namespace Dynamic {
 			unsigned char* new_size_str = new unsigned char[null_current_size];
 			DEEP_COPY_STR(int i = 0, i < null_current_size, i++, new_size_str, Str);
 			capacity_size = null_current_size;
-			delete Str;
+			delete[] Str;
 			Str = new_size_str;
 		}
 	};

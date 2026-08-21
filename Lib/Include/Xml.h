@@ -17,7 +17,7 @@ class XmlVal;
 class XmlStr;
 
 void XmlTestFunc();
-void XmlPrint(XmlObj* Root);
+void XmlPrint(XmlObj* Root, bool isFile=false, FILE* pFile = nullptr);
 
 
 /* =================================================================================

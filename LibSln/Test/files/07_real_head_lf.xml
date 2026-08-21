@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--KPA EtherCAT Studio 2 Premium version: 2.12.15501.0 licensed to Genesem-->
+<!--Copyright (c) 2005-2025 koenig-pa GmbH. All rights reserved-->
+<EtherCATConfig Version="2.12.15501.0">
+  <CRC>50900abad4d822d634d383a4fa10216f</CRC><Config>
+    <Master>
+      <NIC><![CDATA[ie1g0]]></NIC>
+      <RNIC><![CDATA[ie1g1]]></RNIC>
+      <InitialMasterState>1</InitialMasterState>
+      <CycleTime>1000</CycleTime>
+      <MailboxCycleTime>5000</MailboxCycleTime>
+      <AutoRecoveryTimeout>100</AutoRecoveryTimeout>
+      <ProcessImageUpdatePeriod>1000</ProcessImageUpdatePeriod>
+      <StatisticsUpdatePeriod>1000</StatisticsUpdatePeriod>
+      <MaxFrameSize>1514</MaxFrameSize>
+      <SeparateIOUpdate>0</SeparateIOUpdate>
+      <DCUserShiftTime>100000</DCUserShiftTime>
+      <Info>
+        <Name><![CDATA[Master 1]]></Name>
+        <Destination>FFFFFFFFFFFF</Destination>
+        <Source>000000000000</Source>
+        <EtherType>a488</EtherType>
+      </Info>
+      <MailboxStates>
+        <StartAddr>4194304</StartAddr>
+        <Count>19</Count>
+      </MailboxStates>
+      <InitCmds>
+        <InitCmd>
+          <Transition>II</Transition>
+          <BeforeSlave>1</BeforeSlave>
+          <Comment><![CDATA[reset physical address]]></Comment>
+          <Requires>cycle</Requires>
+          <Cmd>8</Cmd>
+          <Adp>0</Adp>
+          <Ado>16</Ado>
+          <Data>0000</Data>
+          <Retries>3</Retries>
+        </InitCmd>
+      </InitCmds>
+    </Master>
+  </Config>
+</EtherCATConfig>
